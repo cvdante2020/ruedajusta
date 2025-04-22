@@ -1,0 +1,370 @@
+"use client";
+
+import { useState } from "react";
+
+export default function VehicleFormWizard() {
+  const [step, setStep] = useState(1);
+
+  const next = () => setStep((prev) => Math.min(prev + 1, 6));
+  const prev = () => setStep((prev) => Math.max(prev - 1, 1));
+  const [tipoVehiculo, setTipoVehiculo] = useState("");
+  const progreso = (step / 6) * 100;
+
+  return (
+    
+    <div className="max-w-4xl mx-auto bg-white/90 backdrop-blur rounded-2xl p-10 md:p-12 shadow-xl border border-gray-200 transition-all">
+
+<div className="w-full h-2 bg-gray-200 rounded-full mb-6 overflow-hidden">
+  <div
+    className="h-full bg-blue-600 transition-all duration-500"
+    style={{ width: `${progreso}%` }}
+  ></div>
+</div>
+
+      <div className="mb-8 text-center">
+        <h2 className="text-2xl font-bold text-gray-800">
+          Evaluación Vehicular – Paso {step} de 6
+        </h2>
+      </div>
+
+      {step === 1 && (
+        <div>
+          <h3 className="text-xl md:text-2xl font-semibold text-gray-800 mb-6 border-b pb-2 border-gray-200">
+          Información del Conductor</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <input className="input" type="text" placeholder="Nombre" />
+            <input className="input" type="text" placeholder="Apellido" />
+            <input className="input" type="email" placeholder="Email" />
+            <input className="input" type="tel" placeholder="Celular" />
+            <input className="input" type="text" placeholder="Ciudad de residencia" />
+          </div>
+        </div>
+      )}
+      {step === 2 && (
+  <div>
+  <h3 className="text-xl md:text-2xl font-semibold text-gray-800 mb-6 border-b pb-2 border-gray-200">
+  Información del Vehículo</h3>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <input className="input" type="text" placeholder="Marca" />
+      <input className="input" type="text" placeholder="Modelo" />
+      <input className="input" type="number" placeholder="Año de fabricación" />
+      <input className="input" type="text" placeholder="Letra inicial de la placa" />
+      <input className="input" type="number" placeholder="Dígito final de la placa" />
+      <input className="input" type="text" placeholder="Lugar de matriculación" />
+      <input className="input" type="number" placeholder="Año de matriculación actual" />
+      <input className="input" type="number" placeholder="Número de dueño(s)" />
+    </div>
+  </div>
+)}
+{step === 3 && (
+  <div>
+  <h3 className="text-xl md:text-2xl font-semibold text-gray-800 mb-6 border-b pb-2 border-gray-200">
+  Evaluación Visual – Exterior</h3>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+      <select className="input"><option value="">Estado de la pintura (1–5)</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+      <select className="input"><option value="">Faros delanteros</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+      <select className="input"><option value="">Luces guías</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+      <select className="input"><option value="">Direccionales frontales</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+      <select className="input"><option value="">Direccionales posteriores</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+      <select className="input"><option value="">Parabrisas delantero</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+      <select className="input"><option value="">Parabrisas posterior</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+      <select className="input"><option value="">Ventanas</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+      <select className="input"><option value="">Carrocería</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+      <select className="input"><option value="">Persiana</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+      <select className="input"><option value="">Llantas</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+      <select className="input"><option value="">Llanta de emergencia</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+    </div>
+
+    <h3 className="text-xl md:text-2xl font-semibold text-gray-800 mb-6 border-b pb-2 border-gray-200">
+    Evaluación Visual – Interior</h3>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <select className="input"><option value="">Tapicería</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+      <select className="input"><option value="">Piso</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+      <select className="input"><option value="">Techo</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+      <select className="input"><option value="">Esfera y controles</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+      <select className="input"><option value="">Chapas</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+      <select className="input"><option value="">Cinturones</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+    </div>
+  </div>
+)}
+{step === 4 && (
+  <div>
+   <h3 className="text-xl md:text-2xl font-semibold text-gray-800 mb-6 border-b pb-2 border-gray-200">
+   Tecnología y Confort</h3>
+
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+      <label className="flex items-center space-x-2">
+       
+   
+        <input type="radio" className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300" />
+
+        <span>Sensor de cinturón de seguridad (acompañante)</span>
+      </label>
+      <label className="flex items-center space-x-2">
+
+<input type="radio" className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300" />
+
+        <span>Techo corredizo</span>
+      </label>
+      <label className="flex items-center space-x-2">
+
+<input type="radio" className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300" />
+
+        <span>Sistema visual para estacionamiento</span>
+      </label>
+      <label className="flex items-center space-x-2">
+
+<input type="radio" className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300" />
+
+        <span>Sensores de retro</span>
+      </label>
+      <label className="flex items-center space-x-2">
+
+<input type="radio" className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300" />
+
+        <span>Cámara de retro</span>
+      </label>
+      <label className="flex items-center space-x-2">
+
+<input type="radio" className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300" />
+
+        <span>Sistema de aparcamiento autónomo</span>
+      </label>
+      <label className="flex items-center space-x-2">
+
+<input type="radio" className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300" />
+
+        <span>Retrovisores eléctricos</span>
+      </label>
+      <label className="flex items-center space-x-2">
+  
+<input type="radio" className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300" />
+
+        <span>Cámara frontal</span>
+      </label>
+      <label className="flex items-center space-x-2">
+
+<input type="radio" className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300" />
+
+        <span>Sensor de proximidad</span>
+      </label>
+      <label className="flex items-center space-x-2">
+
+<input type="radio" className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300" />
+
+        <span>Sensor de alerta de impacto frontal</span>
+      </label>
+    </div>
+
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+      <select className="input">
+        <option value="">Tipo de encendido</option>
+        <option value="llave">Llave</option>
+        <option value="boton">Botón</option>
+        <option value="huella">Huella</option>
+        <option value="voz">Control por voz</option>
+      </select>
+
+      <select className="input">
+        <option value="">Asiento del conductor</option>
+        <option value="manual">Manual</option>
+        <option value="electrico">Eléctrico</option>
+      </select>
+
+      <select className="input">
+        <option value="">Asientos de pasajeros</option>
+        <option value="manual">Manual</option>
+        <option value="electrico">Eléctricos</option>
+      </select>
+
+      <select className="input">
+        <option value="">Airbags</option>
+        <option value="ninguno">Ninguno</option>
+        <option value="conductor">Solo conductor</option>
+        <option value="conductor_acompanante">Conductor y acompañante</option>
+        <option value="cortina">Sistema cortina</option>
+      </select>
+
+      <label className="flex items-center space-x-2">
+
+<input type="radio" className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300" />
+
+        <span>Aire acondicionado</span>
+      </label>
+      <label className="flex items-center space-x-2">
+   
+<input type="radio" className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300" />
+
+        <span>Aire en los asientos</span>
+      </label>
+      <label className="flex items-center space-x-2">
+   
+<input type="radio" className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300" />
+
+        <span>Vidrios eléctricos del conductor</span>
+      </label>
+      <label className="flex items-center space-x-2">
+
+<input type="radio" className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300" />
+
+        <span>Vidrios eléctricos en las 4 ventanas</span>
+      </label>
+    </div>
+  </div>
+)}
+
+{step === 5 && (
+  <div>
+   <h3 className="text-xl md:text-2xl font-semibold text-gray-800 mb-6 border-b pb-2 border-gray-200">
+   Área Mecánica</h3>
+
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <input className="input" type="number" placeholder="Kilómetros o millas recorridos" />
+      <label className="flex items-center space-x-2">
+
+<input type="radio" className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300" />
+
+        <span>Posee garantía del concesionario</span>
+      </label>
+    </div>
+
+    <div className="mb-6">
+      <p className="font-medium mb-2">Tipo de vehículo:</p>
+      <div className="flex flex-wrap gap-4">
+        {["gasolina", "diesel", "hibrido", "electrico"].map((tipo) => (
+          <label key={tipo} className="flex items-center space-x-2">
+            <input
+              type="radio"
+              name="tipo"
+              value={tipo}
+              checked={tipoVehiculo === tipo}
+              onChange={(e) => setTipoVehiculo(e.target.value)}
+              className="accent-blue-600"
+            />
+            <span className="capitalize">{tipo}</span>
+          </label>
+        ))}
+      </div>
+    </div>
+
+    {/* BLOQUES CONDICIONALES */}
+    {tipoVehiculo === "gasolina" && (
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <label className="flex items-center space-x-2">
+          <input type="checkbox" className="accent-blue-600" />
+          <span>¿Ha cambiado alguna parte del motor?</span>
+        </label>
+        <select className="input">
+          <option value="">Estado de la batería (1–5)</option>
+          {[1, 2, 3, 4, 5].map((n) => (
+            <option key={n}>{n}</option>
+          ))}
+        </select>
+        <label className="flex items-center space-x-2"><input type="checkbox" className="accent-blue-600" /><span>¿Ha cambiado el alternador?</span></label>
+        <label className="flex items-center space-x-2"><input type="checkbox" className="accent-blue-600" /><span>¿Ha cambiado el arranque?</span></label>
+        <label className="flex items-center space-x-2"><input type="checkbox" className="accent-blue-600" /><span>¿Ha cambiado la bomba de combustible?</span></label>
+        <label className="flex items-center space-x-2"><input type="checkbox" className="accent-blue-600" /><span>¿Ha realizado limpieza de inyectores?</span></label>
+        <label className="flex items-center space-x-2"><input type="checkbox" className="accent-blue-600" /><span>¿Ha cambiado la batería?</span></label>
+        <label className="flex items-center space-x-2"><input type="checkbox" className="accent-blue-600" /><span>¿Ha cambiado el radiador?</span></label>
+        <label className="flex items-center space-x-2"><input type="checkbox" className="accent-blue-600" /><span>¿Ha hecho revisar el sistema eléctrico?</span></label>
+      </div>
+    )}
+
+    {tipoVehiculo === "diesel" && (
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <label className="flex items-center space-x-2"><input type="checkbox" className="accent-blue-600" /><span>¿Ha cambiado alguna parte del motor?</span></label>
+        <select className="input"><option value="">Estado de la batería (1–5)</option>{[1, 2, 3, 4, 5].map((n) => (<option key={n}>{n}</option>))}</select>
+        <label className="flex items-center space-x-2"><input type="checkbox" className="accent-blue-600" /><span>¿Chequeó la bomba?</span></label>
+        <label className="flex items-center space-x-2"><input type="checkbox" className="accent-blue-600" /><span>¿Limpió inyectores?</span></label>
+        <select className="input"><option>Mantenimiento cada:</option><option>5000 km</option><option>10000 km</option></select>
+        <label className="flex items-center space-x-2"><input type="checkbox" className="accent-blue-600" /><span>¿Cambió alternador?</span></label>
+        <label className="flex items-center space-x-2"><input type="checkbox" className="accent-blue-600" /><span>¿Cambió arranque?</span></label>
+        <label className="flex items-center space-x-2"><input type="checkbox" className="accent-blue-600" /><span>¿Cambió bomba de combustible?</span></label>
+        <label className="flex items-center space-x-2"><input type="checkbox" className="accent-blue-600" /><span>¿Cambió radiador?</span></label>
+        <label className="flex items-center space-x-2"><input type="checkbox" className="accent-blue-600" /><span>¿Cambió batería?</span></label>
+      </div>
+    )}
+
+    {tipoVehiculo === "hibrido" && (
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Similar a gasolina, más preguntas híbridas */}
+        <label className="flex items-center space-x-2"><input type="checkbox" className="accent-blue-600" /><span>¿Ha cambiado parte del motor?</span></label>
+        <select className="input"><option value="">Estado batería híbrida (1–5)</option>{[1, 2, 3, 4, 5].map((n) => (<option key={n}>{n}</option>))}</select>
+        <label className="flex items-center space-x-2"><input type="checkbox" className="accent-blue-600" /><span>¿Sistema híbrido tiene garantía?</span></label>
+        <label className="flex items-center space-x-2"><input type="checkbox" className="accent-blue-600" /><span>¿Ha cambiado algún pack de batería?</span></label>
+        <label className="flex items-center space-x-2"><input type="checkbox" className="accent-blue-600" /><span>¿Se carga por gasolina?</span></label>
+        <label className="flex items-center space-x-2"><input type="checkbox" className="accent-blue-600" /><span>¿Es enchufable?</span></label>
+      </div>
+    )}
+
+    {tipoVehiculo === "electrico" && (
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <label className="flex items-center space-x-2"><input type="checkbox" className="accent-blue-600" /><span>¿Es 100% enchufable?</span></label>
+        <select className="input"><option value="">Periodo de mantenimiento</option><option>Mensual</option><option>Trimestral</option><option>Semestral</option></select>
+        <label className="flex items-center space-x-2"><input type="checkbox" className="accent-blue-600" /><span>¿Ha tenido problemas con el sistema eléctrico?</span></label>
+        <label className="flex items-center space-x-2"><input type="checkbox" className="accent-blue-600" /><span>¿Ha cambiado algún pack o batería?</span></label>
+      </div>
+    )}
+  </div>
+)}
+{step === 6 && (
+  <div className="text-center">
+  <h3 className="text-xl md:text-2xl font-semibold text-gray-800 mb-6 border-b pb-2 border-gray-200">
+  ¡Formulario completado!</h3>
+    <p className="text-gray-700 mb-6">
+      Gracias por completar la evaluación de tu vehículo. Nuestro sistema procesará la información para calcular el precio justo.
+    </p>
+    <a
+      href="/"
+      className="inline-block bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition-all"
+    >
+      ← Volver al inicio
+    </a>
+  </div>
+)}
+
+
+      {/* Aquí irán las otras secciones: step 2, 3, 4, 5, 6 */}
+
+      <div className="mt-8 flex justify-between">
+      <div className="mb-6">
+  <a
+    href="/"
+    className="text-sm text-blue-600 hover:underline"
+  >
+    ← Volver a la página principal
+  </a>
+</div>
+       <div className="mt-10 flex flex-wrap justify-between items-center gap-4">
+  {step > 1 && (
+    <button
+      onClick={prev}
+      className="bg-gray-200 text-gray-800 px-6 py-2 rounded-md hover:bg-gray-300 transition-all"
+    >
+      ← Atrás
+    </button>
+  )}
+
+  {step < 6 && (
+    <button
+      onClick={next}
+      className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-all"
+    >
+      Siguiente →
+    </button>
+  )}
+
+  {step === 6 && (
+    <button
+      onClick={() => alert("Formulario enviado ✅")}
+      className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition-all"
+    >
+      Enviar formulario
+    </button>
+  )}
+</div>
+
+      </div>
+    </div>
+  );
+}
