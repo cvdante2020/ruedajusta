@@ -1,21 +1,23 @@
+// src/components/LandingFormulario.tsx
 "use client";
-
 import { useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
+import { useRouter } from "next/navigation";
 
 export default function LandingFormulario() {
+  const router = useRouter();
   const [form, setForm] = useState({
     nombre: "",
     email: "",
     whatsapp: "",
-    tipo: "",
-    marca: "",
     ciudad: "",
+    marca: "",
     anioMin: "",
     anioMax: "",
     precioMin: "",
     precioMax: "",
-    combustible: ""
+    tipo: "",
+    combustible: "",
   });
 
   const [mensaje, setMensaje] = useState("");
@@ -28,74 +30,83 @@ export default function LandingFormulario() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validaciones
+    if (!/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(form.nombre)) {
+      alert("El nombre solo debe contener letras."); return;
+    }
+    if (!/^\d{1,10}$/.test(form.whatsapp)) {
+      alert("El WhatsApp debe contener solo números y máximo 10 dígitos."); return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+      alert("El correo ingresado no es válido."); return;
+    }
+    if (form.ciudad.length > 20) {
+      alert("La ciudad no debe tener más de 20 caracteres."); return;
+    }
+    const anioMin = parseInt(form.anioMin);
+    if (isNaN(anioMin) || anioMin < 1980 || anioMin > 2024) {
+      alert("El año mínimo debe estar entre 1980 y 2024."); return;
+    }
+    const anioMax = parseInt(form.anioMax);
+    if (isNaN(anioMax) || anioMax < 2000 || anioMax > 2025) {
+      alert("El año máximo debe estar entre 2000 y 2025."); return;
+    }
+    const precioMin = parseInt(form.precioMin);
+    const precioMax = parseInt(form.precioMax);
+    if (isNaN(precioMin) || precioMin < 5000 || precioMin > 200000 ||
+        isNaN(precioMax) || precioMax < 5000 || precioMax > 200000) {
+      alert("Los precios deben estar entre $5.000 y $200.000."); return;
+    }
+
     setEnviando(true);
     setMensaje("Enviando datos...");
 
-    const { data, error } = await supabase.from("solicitudes_ofertas").insert([form]);
-
+    const { error } = await supabase.from("solicitudes_ofertas").insert([form]);
     if (error) {
-      console.error("Error al guardar en Supabase:", error);
+      console.error(error);
       setMensaje("❌ Error al enviar el formulario");
     } else {
       setMensaje("✅ ¡Formulario enviado con éxito!");
-      setForm({
-        nombre: "",
-        email: "",
-        whatsapp: "",
-        tipo: "",
-        marca: "",
-        ciudad: "",
-        anioMin: "",
-        anioMax: "",
-        precioMin: "",
-        precioMax: "",
-        combustible: ""
-      });
+      setTimeout(() => router.push("/"), 1500);
     }
     setEnviando(false);
   };
 
+  const marcasEcuador = [
+    "Chevrolet", "Kia", "Hyundai", "Toyota", "Mazda", "Ford", "Nissan", "Volkswagen", "Renault", "Chery"
+  ];
+
   return (
-    <main className="min-h-screen bg-gradient-to-br from-lime-50 to-green-100 py-12 px-6">
-      <div className="max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-xl border">
-        <h1 className="text-2xl font-bold text-center text-[#006654] mb-6">
-          ¿Qué vehículo estás buscando?
-        </h1>
-        <p className="text-center text-sm text-gray-500 mb-8">
-          Recibe ofertas únicas y directas en tu WhatsApp, sin intermediarios.
+    <form onSubmit={handleSubmit} className="max-w-2xl mx-auto p-6 bg-white rounded-xl shadow-md space-y-4">
+      <div className="text-center mb-6">
+        <h2 className="text-2xl font-bold text-[#006654]">¿Qué vehículo estás buscando?</h2>
+        <p className="text-gray-600 mt-2 text-sm">
+          Recibe <strong>ofertas únicas</strong> y <strong>directas</strong> en tu WhatsApp, <span className="text-green-600 font-semibold">¡sin intermediarios!</span>
         </p>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input name="nombre" value={form.nombre} onChange={handleChange} type="text" placeholder="Tu nombre" className="input" />
-            <input name="email" value={form.email} onChange={handleChange} type="email" placeholder="Tu email" className="input" />
-            <input name="whatsapp" value={form.whatsapp} onChange={handleChange} type="tel" placeholder="Tu WhatsApp" className="input" />
-            <input name="ciudad" value={form.ciudad} onChange={handleChange} type="text" placeholder="Ciudad" className="input" />
-            <select name="tipo" value={form.tipo} onChange={handleChange} className="input">
-              <option value="">Tipo de vehículo</option>
-              <option value="auto">Auto</option>
-              <option value="camioneta">Camioneta</option>
-              <option value="suv">SUV</option>
-              <option value="moto">Moto</option>
-            </select>
-            <input name="marca" value={form.marca} onChange={handleChange} type="text" placeholder="Marca deseada" className="input" />
-            <input name="anioMin" value={form.anioMin} onChange={handleChange} type="number" placeholder="Año mínimo" className="input" />
-            <input name="anioMax" value={form.anioMax} onChange={handleChange} type="number" placeholder="Año máximo" className="input" />
-            <input name="precioMin" value={form.precioMin} onChange={handleChange} type="number" placeholder="Precio mínimo" className="input" />
-            <input name="precioMax" value={form.precioMax} onChange={handleChange} type="number" placeholder="Precio máximo" className="input" />
-            <select name="combustible" value={form.combustible} onChange={handleChange} className="input">
-              <option value="">Tipo de combustible</option>
-              <option value="gasolina">Gasolina</option>
-              <option value="diesel">Diésel</option>
-              <option value="electrico">Eléctrico</option>
-              <option value="hibrido">Híbrido</option>
-            </select>
-          </div>
-          <button type="submit" disabled={enviando} className="w-full bg-[#006654] text-white py-3 rounded-xl hover:bg-[#007f6d] transition-all">
-            {enviando ? "Enviando..." : "Enviar y recibir ofertas 🚘"}
-          </button>
-          {mensaje && <p className="text-center text-sm text-gray-600 mt-2">{mensaje}</p>}
-        </form>
       </div>
-    </main>
+
+      <input name="nombre" placeholder="Tu nombre" value={form.nombre} onChange={handleChange} className="input" required />
+      <input name="email" placeholder="Tu correo" value={form.email} onChange={handleChange} className="input" type="email" required />
+      <input name="whatsapp" placeholder="Tu WhatsApp" value={form.whatsapp} onChange={handleChange} className="input" inputMode="numeric" required />
+      <input name="ciudad" placeholder="Ciudad" value={form.ciudad} onChange={handleChange} className="input" required />
+
+      <select name="marca" value={form.marca} onChange={handleChange} className="input" required>
+        <option value="">Marca deseada</option>
+        {marcasEcuador.map((marca) => (
+          <option key={marca} value={marca}>{marca}</option>
+        ))}
+      </select>
+
+      <input name="anioMin" placeholder="Año mínimo" value={form.anioMin} onChange={handleChange} className="input" type="number" required />
+      <input name="anioMax" placeholder="Año máximo" value={form.anioMax} onChange={handleChange} className="input" type="number" required />
+      <input name="precioMin" placeholder="Precio mínimo" value={form.precioMin} onChange={handleChange} className="input" type="number" required />
+      <input name="precioMax" placeholder="Precio máximo" value={form.precioMax} onChange={handleChange} className="input" type="number" required />
+
+      <button type="submit" className="bg-green-600 text-white py-2 px-4 rounded-xl w-full">
+        {enviando ? "Enviando..." : "Enviar y recibir ofertas 🚘"}
+      </button>
+      {mensaje && <p className="text-center text-sm text-gray-600 mt-2">{mensaje}</p>}
+    </form>
   );
 }
