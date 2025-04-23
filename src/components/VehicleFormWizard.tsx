@@ -8,14 +8,10 @@ import { Loader2 } from "lucide-react";
 import { generateVehicleReport } from "@/utils/generateVehicleReport";
 import { buscarPrecioReferencia } from "./buscarPrecioReferencia";
 import { calcularValoracion } from "@/utils/calcularValoracion";
-import VisualEvaluationStep from "./VisualEvaluationStep"; // NUEVO
-//import { useAuthProtection } from "@/hooks/useAuthProtection";
+import VisualEvaluationStep from "./VisualEvaluationStep";
 import Fuse from "fuse.js";
 
-
-
 export default function VehicleFormWizard() {
-  //const { autenticado, verificando } = useAuthProtection();
   const [step, setStep] = useState(1);
   const [enviando, setEnviando] = useState(false);
   const [mensaje, setMensaje] = useState("");
@@ -75,8 +71,8 @@ export default function VehicleFormWizard() {
     vidriosConduct: false,
     asiento_conductor: "",
     asientos_pasajeros: "",
-    anio_matriculacion:"",
-    direccionales_frontales:""
+    anio_matriculacion: "",
+    direccionales_frontales: ""
   });
 
   const progreso = (step / 6) * 100;
@@ -86,11 +82,32 @@ export default function VehicleFormWizard() {
   ) => {
     const { name, value, type } = e.target;
     const checked = (e.target as HTMLInputElement).checked;
+
+    let newValue = value;
+
+    if (name === "placa_letra") {
+      newValue = value.replace(/[^a-zA-Z]/g, "").toUpperCase().slice(0, 1);
+    }
+
+    if (name === "placa_numero") {
+      newValue = value.replace(/\D/g, "").slice(0, 3);
+    }
+
+    if (name === "celular") {
+      newValue = value.replace(/\D/g, "").slice(0, 10);
+    }
+
+    if (name === "anio" || name === "anio_matriculacion") {
+      newValue = value.replace(/\D/g, "").slice(0, 4);
+    }
+    
+
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value
+      [name]: type === "checkbox" ? checked : newValue,
     }));
   };
+
   const verificarDuplicado = async () => {
     const { data: existentes, error } = await supabase
       .from("evaluaciones")
@@ -101,13 +118,12 @@ export default function VehicleFormWizard() {
       .eq("email", formData.email);
 
     if (error) {
-      console.error("❌ Error en verificación de duplicado:", error);
+      console.error("❌ Error verificando duplicados:", error);
       return false;
     }
 
     return existentes && existentes.length > 0;
   };
-
 
   const obtenerSugerenciaFuzzy = async (campo: string, valor: string): Promise<string> => {
     const { data } = await supabase.from("vehiculos_ref").select(campo);
@@ -117,95 +133,132 @@ export default function VehicleFormWizard() {
     return resultado[0]?.item || valor.trim().toLowerCase();
   };
 
-  const enviarFormulario = async () => {
-    if (enviando) return;
-    setEnviando(true);
-    setMensaje("Enviando datos, por favor espera...");
+  const validarPasoActual = (): boolean => {
+    switch (step) {
+      case 1:
+        return (
+          formData.nombre.trim() !== "" &&
+          formData.apellido.trim() !== "" &&
+          formData.email.includes("@") &&
+          formData.celular.trim().length >= 8 &&
+          formData.ciudad.trim() !== ""
+        );
+      case 2:
+        return (
+          formData.Marca.trim() !== "" &&
+          formData.modelo.trim() !== "" &&
+         /^\d{4}$/.test(formData.anio) &&
+          /^[A-Za-z]{1}$/.test(formData.placa_letra) &&
+          /^\d{1}$/.test(formData.placa_numero) &&
+          formData.matriculacion.trim() !== "" &&
+          /^\d{4}$/.test(formData.anio_matriculacion) &&
+          !isNaN(parseInt(formData.duenios)) && parseInt(formData.duenios) >= 0
 
-    const yaExiste = await verificarDuplicado();
-    if (yaExiste) {
-      alert("❌ Ya existe una evaluación registrada con esos datos. Por favor verifica la información.");
-      setMensaje("❌ Ya existe una evaluación registrada con esos datos.");
-      setEnviando(false);
-      return;
+        );
+      case 3:
+        // Se puede validar al menos que haya calificación en pintura o faros
+        return formData.pintura !== "" && formData.faros !== "";
+      case 4:
+        return formData.encendido !== "" &&
+          formData.asiento_conductor !== "" &&
+          formData.asientos_pasajeros !== "" &&
+          formData.airbags !== "";
+      case 5:
+        return (
+          formData.kilometraje !== "" &&
+          formData.tipo_motor !== "" &&
+          (formData.tipo_motor !== "diesel" || formData.mantenimiento !== "")
+        );
+      default:
+        return true;
     }
-
-   const marcaNormalizada = await obtenerSugerenciaFuzzy("marca", formData.Marca);
-    const modeloNormalizado = await obtenerSugerenciaFuzzy("modelo", formData.modelo);
-    const tipoNormalizado = "auto";
-    const combustibleNormalizado = await obtenerSugerenciaFuzzy("combustible", formData.tipo_motor);
-
-    const precioBase = await buscarPrecioReferencia({
-      marca: marcaNormalizada,
-      modelo: modeloNormalizado,
-      anio: parseInt(formData.anio),
-      tipo_vehiculo: tipoNormalizado,
-      combustible: combustibleNormalizado,
-
-      
-    });
-    console.log("📦 Buscando referencia con:", {
-        marca: formData.Marca,
-        modelo: formData.modelo,
-        anio: parseInt(formData.anio),
-        tipo_vehiculo: "auto",
-        combustible: formData.tipo_motor,
-      });
-      
-    
-    
-
-    if (!precioBase) {
-      setMensaje("❌ No existe un valor de referencia para esta combinación de marca, modelo y año. Puedes agregarlo desde el panel de administración o subir un archivo de referencia.");
-      setEnviando(false);
-      return;
-    }
-
-    const valoracion = await calcularValoracion({
-      ...formData,
-      marca: marcaNormalizada,
-      modelo: modeloNormalizado,
-    });
-    
-    
-
-
-    const payload = {
-      ...formData,
-      kilometraje: parseInt(formData.kilometraje) || null,
-      anio: parseInt(formData.anio) || null,
-      placa_numero: parseInt(formData.placa_numero) || null,
-      duenios: parseInt(formData.duenios) || null,
-      garantia: !!formData.garantia,
-      sensoresCinturon: !!formData.sensoresCinturon,
-      techoCorredizo: !!formData.techoCorredizo,
-      sensores_estacionamiento: !!formData.sensores_estacionamiento,
-      sensores_retro: !!formData.sensores_retro,
-      camara_retro: !!formData.camara_retro,
-      aparcamiento_autonomo: !!formData.aparcamiento_autonomo,
-      retrovisoresElectricos: !!formData.retrovisoresElectricos,
-      camara_frontal: !!formData.camara_frontal,
-      sensorProximidad: !!formData.sensorProximidad,
-      sensorImpacto: !!formData.sensorImpacto,
-      aire_asientos: !!formData.aire_asientos,
-      aireAcondicionado: !!formData.aireAcondicionado,
-      vidriosConduct: !!formData.vidriosConduct,
-      vidriosTodos: !!formData.vidriosTodos,
-      ...valoracion
-    };
+  };
   
-    if ('error' in payload) {
+
+  const enviarFormulario = async () => {
+  if (enviando) return;
+
+  setEnviando(true);
+  setMensaje("Enviando datos, por favor espera...");
+
+  const yaExiste = await verificarDuplicado();
+  if (yaExiste) {
+    alert("❌ Ya existe una evaluación registrada con esos datos. Por favor verifica la información.");
+    setMensaje("❌ Ya existe una evaluación registrada con esos datos.");
+    setEnviando(false);
+    return;
+  }
+
+  const marcaNormalizada = await obtenerSugerenciaFuzzy("marca", formData.Marca);
+  const modeloNormalizado = await obtenerSugerenciaFuzzy("modelo", formData.modelo);
+  const tipoNormalizado = "auto";
+  const combustibleNormalizado = await obtenerSugerenciaFuzzy("combustible", formData.tipo_motor);
+
+  const precioBase = await buscarPrecioReferencia({
+    marca: marcaNormalizada,
+    modelo: modeloNormalizado,
+    anio: parseInt(formData.anio),
+    tipo_vehiculo: tipoNormalizado,
+    combustible: combustibleNormalizado,
+  });
+
+  console.log("📦 Buscando referencia con:", {
+    marca: formData.Marca,
+    modelo: formData.modelo,
+    anio: parseInt(formData.anio),
+    tipo_vehiculo: "auto",
+    combustible: formData.tipo_motor,
+  });
+  if (!precioBase) {
+    setMensaje("❌ No existe un valor de referencia para esta combinación de marca, modelo y año. Puedes agregarlo desde el panel de administración o subir un archivo de referencia.");
+    setEnviando(false);
+    return;
+  }
+
+  const valoracion = await calcularValoracion({
+    ...formData,
+    marca: marcaNormalizada,
+    modelo: modeloNormalizado,
+  });
+
+  const payload = {
+    ...formData,
+    kilometraje: parseInt(formData.kilometraje) || null,
+    anio: parseInt(formData.anio) || null,
+    placa_numero: parseInt(formData.placa_numero) || null,
+    duenios: parseInt(formData.duenios) || null,
+    garantia: !!formData.garantia,
+    sensoresCinturon: !!formData.sensoresCinturon,
+    techoCorredizo: !!formData.techoCorredizo,
+    sensores_estacionamiento: !!formData.sensores_estacionamiento,
+    sensores_retro: !!formData.sensores_retro,
+    camara_retro: !!formData.camara_retro,
+    aparcamiento_autonomo: !!formData.aparcamiento_autonomo,
+    retrovisoresElectricos: !!formData.retrovisoresElectricos,
+    camara_frontal: !!formData.camara_frontal,
+    sensorProximidad: !!formData.sensorProximidad,
+    sensorImpacto: !!formData.sensorImpacto,
+    aire_asientos: !!formData.aire_asientos,
+    aireAcondicionado: !!formData.aireAcondicionado,
+    vidriosConduct: !!formData.vidriosConduct,
+    vidriosTodos: !!formData.vidriosTodos,
+    ...valoracion,
+  };
+    if ("error" in payload) {
       delete payload.error;
     }
-    
+
     const { data, error } = await supabase.from("evaluaciones").insert([payload]);
 
     if (error) {
-      console.error("Error al guardar en Supabase:", error);
+      console.error("❌ Error al guardar en Supabase:", error);
       alert("Hubo un error al enviar el formulario ❌");
       setMensaje("");
       setEnviando(false);
-    } else {
+      return;
+      } 
+
+      else {
       setMensaje("Formulario enviado correctamente ✅ Redirigiendo...");
 
       try {
@@ -248,19 +301,13 @@ export default function VehicleFormWizard() {
       } catch (err) {
         console.error("❌ Error al generar el PDF:", err);
       }
-      
+
       setTimeout(() => {
         router.push("/");
       }, 2000);
     }
   };
 
-  // ... el resto del render y navegación permanece igual
-
-
-  // ... el resto del render y navegación permanece igual
- // if (verificando) return <div className="p-10 text-center">Verificando acceso...</div>;
-  //if (!autenticado) return null;
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-100 to-blue-100 py-16 px-6">
       <div className="max-w-4xl mx-auto bg-white/90 backdrop-blur rounded-2xl p-10 md:p-12 shadow-xl border border-gray-200 transition-all">
@@ -278,352 +325,382 @@ export default function VehicleFormWizard() {
         </div>
 
         <div className="animate-fade-up transition-all duration-500 bg-white rounded-xl shadow-md hover:shadow-lg p-6 md:p-8 mb-10">
-          {/* ... pasos anteriores */}
           {step === 1 && (
-  <>
-    <h3 className="text-xl md:text-2xl font-semibold text-gray-800 mb-6 border-b pb-2 border-gray-200">
-      Información del Conductor 
-    </h3>
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <input
-        className="input"
-        type="text"
-        name="nombre"
-        value={formData.nombre}
-        onChange={handleChange}
-        placeholder="Nombre"
-      />
-      <input
-        className="input"
-        type="text"
-        name="apellido"
-        value={formData.apellido}
-        onChange={handleChange}
-        placeholder="Apellido"
-      />
-      <input
-        className="input"
-        type="email"
-        name="email"
-        value={formData.email}
-        onChange={handleChange}
-        placeholder="Email"
-      />
-      <input
-        className="input"
-        type="tel"
-        name="celular"
-        value={formData.celular}
-        onChange={handleChange}
-        placeholder="Celular"
-      />
-      <input
-        className="input"
-        type="text"
-        name="ciudad"
-        value={formData.ciudad}
-        onChange={handleChange}
-        placeholder="Ciudad de residencia"
-      />
-    </div>
-  </>
-)}
-
-      {step === 2 && (
-  <div>
-  <h3 className="text-xl md:text-2xl font-semibold text-gray-800 mb-6 border-b pb-2 border-gray-200">
-  Información del Vehículo</h3>
-  <div>
-   
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <input
-        className="input"
-        type="text"
-        name="Marca"
-        value={formData.Marca}
-        onChange={handleChange}
-        placeholder="Marca"
-      />
-      <input
-        className="input"
-        type="text"
-        name="modelo"
-        value={formData.modelo}
-        onChange={handleChange}
-        placeholder="Modelo"
-      />
-      <input
-        className="input"
-        type="number"
-        name="anio"
-        value={formData.anio}
-        onChange={handleChange}
-        placeholder="Año de fabricación"
-      />
-      <input
-        className="input"
-        type="text"
-        name="placa_letra"
-        value={formData.placa_letra}
-        onChange={handleChange}
-        placeholder="Letra inicial de la placa"
-      />
-      <input
-        className="input"
-        type="number"
-        name="placa_numero"
-        value={formData.placa_numero}
-        onChange={handleChange}
-        placeholder="Dígito final de la placa"
-      />
-      <input
-        className="input"
-        type="text"
-        name="matriculacion"
-        value={formData.matriculacion}
-        onChange={handleChange}
-        placeholder="Lugar de matriculación"
-      />
-      <input
-        className="input"
-        type="number"
-        name="anio_matriculacion"
-        value={formData.anio_matriculacion || ""}
-        onChange={handleChange}
-        placeholder="Año de matriculación actual"
-      />
-      <input
-        className="input"
-        type="number"
-        name="duenios"
-        value={formData.duenios}
-        onChange={handleChange}
-        placeholder="Número de dueño(s)"
-      />
-    </div>
-  </div>
-  </div>
-)}
-
-{step === 3 && (
-   <VisualEvaluationStep formData={formData} handleChange={handleChange} />
-)}
-
-
-          {step === 4 && (
             <>
               <h3 className="text-xl md:text-2xl font-semibold text-gray-800 mb-6 border-b pb-2 border-gray-200">
-                Tecnología y Confort
+                Información del Conductor
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                {[
-                  ["sensoresCinturon", "Sensor cinturón acompañante"],
-                  ["techoCorredizo", "Techo corredizo"],
-                  ["sistemaVisual", "Sistema visual para estacionamiento"],
-                  ["sensores_retro", "Sensores de retro"],
-                  ["camara_retro", "Cámara de retro"],
-                  ["aparcamiento_autonomo", "Aparcamiento autónomo"],
-                  ["retrovisoresElectricos", "Retrovisores eléctricos"],
-                  ["camara_frontal", "Cámara frontal"],
-                  ["sensorProximidad", "Sensor de proximidad"],
-                  ["sensorImpacto", "Alerta de impacto frontal"],
-                  ["aire_asientos", "Aire en los asientos"],
-                  ["aireAcondicionado", "Aire acondicionado"],
-                  ["vidriosConduct", "Vidrios eléctricos conductor"],
-                  ["vidriosTodos", "Vidrios eléctricos 4 ventanas"]
-                ].map(([name, label]) => (
-                  <label key={name} className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      name={name}
-                      checked={Boolean(formData[name as keyof typeof formData])}
-                      onChange={handleChange}
-                      className="accent-blue-600"
-                    />
-                    <span>{label}</span>
-                  </label>
-                ))}
-              </div>
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <select
-                  name="encendido"
-                  value={formData.encendido}
-                  onChange={handleChange}
+                <input
                   className="input"
-                >
-                  <option value="">Tipo de encendido</option>
-                  <option value="llave">Llave</option>
-                  <option value="boton">Botón</option>
-                  <option value="huella">Huella</option>
-                  <option value="voz">Control por voz</option>
-                </select>
-
-                <select
-                  name="asiento_conductor"
-                  value={formData.asiento_conductor}
+                  type="text"
+                  name="nombre"
+                  value={formData.nombre}
                   onChange={handleChange}
+                  placeholder="Nombre"
+                  maxLength={40}
+                  required
+                />
+                <input
                   className="input"
-                >
-                  <option value="">El asiento del conductor es</option>
-                  <option value="manual">Manual</option>
-                  <option value="electrico">Eléctrico</option>
-                </select>
-
-                <select
-                  name="asientos_pasajeros"
-                  value={formData.asientos_pasajeros}
+                  type="text"
+                  name="apellido"
+                  value={formData.apellido}
                   onChange={handleChange}
+                  placeholder="Apellido"
+                  maxLength={40}
+                  required
+                />
+                <input
                   className="input"
-                >
-                  <option value="">El asiento del pasajero es</option>
-                  <option value="manual">Manual</option>
-                  <option value="electrico">Eléctrico</option>
-                </select>
-
-                <select
-                  name="airbags"
-                  value={formData.airbags}
+                  type="email"
+                  name="email"
+                  value={formData.email}
                   onChange={handleChange}
+                  placeholder="Email"
+                  required
+                />
+                <input
                   className="input"
-                >
-                  <option value="">Que airbags tiene el vehículo</option>
-                  <option value="ninguno">Ninguno</option>
-                  <option value="conductor">Solo conductor</option>
-                  <option value="conductor_acompanante">Conductor y acompañante</option>
-                  <option value="cortina">Sistema cortina</option>
-                </select>
+                  type="tel"
+                  name="celular"
+                  value={formData.celular}
+                  onChange={handleChange}
+                  placeholder="Celular"
+                  maxLength={10}
+                  pattern="[0-9]{10}"
+                  required
+                />
+                <input
+                  className="input"
+                  type="text"
+                  name="ciudad"
+                  value={formData.ciudad}
+                  onChange={handleChange}
+                  placeholder="Ciudad de residencia"
+                  maxLength={20}
+                />
               </div>
             </>
           )}
-  {step === 5 && (
-            <>
+          {step === 2 && (
+            <div>
               <h3 className="text-xl md:text-2xl font-semibold text-gray-800 mb-6 border-b pb-2 border-gray-200">
-                Área Mecánica
+                Información del Vehículo
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input
+                  className="input"
+                  type="text"
+                  name="Marca"
+                  value={formData.Marca}
+                  onChange={handleChange}
+                  placeholder="Marca"
+                  required
+                  maxLength={30}
+                />
+                <input
+                  className="input"
+                  type="text"
+                  name="modelo"
+                  value={formData.modelo}
+                  onChange={handleChange}
+                  placeholder="Modelo"
+                  required
+                  maxLength={30}
+                />
+<input
+  className="input"
+  type="text"
+  name="anio"
+  value={formData.anio || ""}
+  onChange={handleChange}
+  placeholder="Año de fabricación"
+/>
+
+
+                <input
+                  className="input"
+                  type="text"
+                  name="placa_letra"
+                  value={formData.placa_letra}
+                  onChange={handleChange}
+                  placeholder="Letra inicial de la placa"
+                  pattern="[A-Z]{1}"
+                  maxLength={1}
+                  title="Solo una letra mayúscula"
+                  required
+                />
                 <input
                   className="input"
                   type="number"
-                  name="kilometraje"
-                  value={formData.kilometraje}
+                  name="placa_numero"
+                  value={formData.placa_numero}
                   onChange={handleChange}
-                  placeholder="Kilómetros o millas recorridos"
+                  placeholder="Dígito final de la placa"
+                  min={0}
+                  max={9}
+                  required
                 />
-                <label className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    name="garantia"
-                    checked={Boolean(formData.garantia)}
-                    onChange={handleChange}
-                    className="accent-blue-600"
-                  />
-                  <span>Posee garantía del concesionario</span>
-                </label>
+                <input
+                  className="input"
+                  type="text"
+                  name="matriculacion"
+                  value={formData.matriculacion}
+                  onChange={handleChange}
+                  placeholder="Lugar de matriculación"
+                  maxLength={40}
+                />
+<input
+  className="input"
+  type="text"
+  name="anio_matriculacion"
+  value={formData.anio_matriculacion || ""}
+  onChange={handleChange}
+  placeholder="Año de matriculación actual"
+/>
+             <input
+                  className="input"
+                  type="number"
+                  name="duenios"
+                  value={formData.duenios}
+                  onChange={handleChange}
+                  placeholder="Número de dueño(s)"
+                  min={0}
+                  max={10}
+                />
               </div>
-
-              <div className="mb-6">
-                <p className="font-medium mb-2">Tipo de vehículo:</p>
-                <div className="flex flex-wrap gap-4">
-                  {[
-                    "gasolina",
-                    "diesel",
-                    "hibrido",
-                    "electrico"
-                  ].map((tipo) => (
-                    <label key={tipo} className="flex items-center space-x-2">
-                      <input
-                        type="radio"
-                        name="tipo_motor"
-                        value={tipo}
-                        checked={formData.tipo_motor === tipo}
-                        onChange={handleChange}
-                        className="accent-blue-600"
-                      />
-                      <span className="capitalize">{tipo}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              {formData.tipo_motor === "diesel" && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <select
-                    name="mantenimiento"
-                    value={formData.mantenimiento}
-                    onChange={handleChange}
-                    className="input"
-                  >
-                    <option value="">Mantenimiento cada:</option>
-                    <option value="5000">5000 km</option>
-                    <option value="10000">10000 km</option>
-                  </select>
-                </div>
-              )}
-            </>
-          )}
-
-            {step === 6 && (
-            <div className="text-center">
-              <h3 className="text-xl md:text-2xl font-semibold text-gray-800 mb-6 border-b pb-2 border-gray-200">
-                ¡Formulario completado!
-              </h3>
-              <p className="text-gray-700 mb-6">
-                Gracias por completar la evaluación de tu vehículo. Nuestro sistema procesará la información para calcular el precio justo.
-              </p>
-              <a
-                href="/"
-                className="inline-block bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition-all"
-              >
-                ← Volver al inicio
-              </a>
             </div>
           )}
-        </div>
-        
 
-        <div className="mt-10 flex flex-wrap justify-between items-center gap-4">
-          {step > 1 && (
-            <button
-              onClick={() => setStep((prev) => Math.max(prev - 1, 1))}
-              className="bg-gray-100 text-gray-800 px-6 py-2 rounded-lg shadow-sm hover:shadow-md hover:bg-gray-200 transition-all"
-            >
-              ← Atrás
-            </button>
-          )}
 
-          {step < 6 && (
-            <button
-              onClick={() => setStep((prev) => Math.min(prev + 1, 6))}
-              className="bg-blue-600 text-white px-6 py-2 rounded-lg shadow-md hover:shadow-lg hover:bg-blue-700 transition-all"
-            >
-              Siguiente →
-            </button>
+          {step === 3 && (
+            <VisualEvaluationStep formData={formData} handleChange={handleChange} />
           )}
+       {step === 4 && (
+  <>
+    <h3 className="text-xl md:text-2xl font-semibold text-gray-800 mb-6 border-b pb-2 border-gray-200">
+      Tecnología y Confort
+    </h3>
 
-          {step === 6 && (
-            <button
-            
-            onClick={enviarFormulario}
-            
-            disabled={enviando}
-            
-            className={`px-6 py-2 rounded-lg shadow-md transition-all ${enviando ? "bg-gray-400 text-white" : "bg-green-600 text-white hover:bg-green-700 hover:shadow-lg"}`}
-          >
-            {enviando ? (
-              <span className="flex items-center gap-2">
-                <Loader2 className="animate-spin h-5 w-5" /> Enviando...
-                
-              </span>
-            ) : (
-              "Enviar formulario"
-              
-            )}
-          </button>
-          )}
-        </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+      {[
+        ["sensoresCinturon", "Sensor cinturón acompañante"],
+        ["techoCorredizo", "Techo corredizo"],
+        ["sistemaVisual", "Sistema visual para estacionamiento"],
+        ["sensores_retro", "Sensores de retro"],
+        ["camara_retro", "Cámara de retro"],
+        ["aparcamiento_autonomo", "Aparcamiento autónomo"],
+        ["retrovisoresElectricos", "Retrovisores eléctricos"],
+        ["camara_frontal", "Cámara frontal"],
+        ["sensorProximidad", "Sensor de proximidad"],
+        ["sensorImpacto", "Alerta de impacto frontal"],
+        ["aire_asientos", "Aire en los asientos"],
+        ["aireAcondicionado", "Aire acondicionado"],
+        ["vidriosConduct", "Vidrios eléctricos conductor"],
+        ["vidriosTodos", "Vidrios eléctricos 4 ventanas"]
+      ].map(([name, label]) => (
+        <label key={name} className="flex items-center space-x-2">
+          <input
+            type="checkbox"
+            name={name}
+            checked={Boolean(formData[name as keyof typeof formData])}
+            onChange={handleChange}
+            className="accent-blue-600"
+          />
+          <span>{label}</span>
+        </label>
+      ))}
+    </div>
+
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <select
+        name="encendido"
+        value={formData.encendido}
+        onChange={handleChange}
+        className="input"
+        required
+      >
+        <option value="">Tipo de encendido</option>
+        <option value="llave">Llave</option>
+        <option value="boton">Botón</option>
+        <option value="huella">Huella</option>
+        <option value="voz">Control por voz</option>
+      </select>
+
+      <select
+        name="asiento_conductor"
+        value={formData.asiento_conductor}
+        onChange={handleChange}
+        className="input"
+        required
+      >
+        <option value="">El asiento del conductor es</option>
+        <option value="manual">Manual</option>
+        <option value="electrico">Eléctrico</option>
+      </select>
+
+      <select
+        name="asientos_pasajeros"
+        value={formData.asientos_pasajeros}
+        onChange={handleChange}
+        className="input"
+        required
+      >
+        <option value="">El asiento del pasajero es</option>
+        <option value="manual">Manual</option>
+        <option value="electrico">Eléctrico</option>
+      </select>
+
+      <select
+        name="airbags"
+        value={formData.airbags}
+        onChange={handleChange}
+        className="input"
+        required
+      >
+        <option value="">¿Qué airbags tiene el vehículo?</option>
+        <option value="ninguno">Ninguno</option>
+        <option value="conductor">Solo conductor</option>
+        <option value="conductor_acompanante">Conductor y acompañante</option>
+        <option value="cortina">Sistema cortina</option>
+      </select>
+    </div>
+  </>
+)}
+{step === 5 && (
+  <>
+    <h3 className="text-xl md:text-2xl font-semibold text-gray-800 mb-6 border-b pb-2 border-gray-200">
+      Área Mecánica
+    </h3>
+
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <input
+        className="input"
+        type="number"
+        name="kilometraje"
+        value={formData.kilometraje}
+        onChange={handleChange}
+        placeholder="Kilómetros o millas recorridos"
+        min={0}
+        required
+      />
+      <label className="flex items-center space-x-2">
+        <input
+          type="checkbox"
+          name="garantia"
+          checked={Boolean(formData.garantia)}
+          onChange={handleChange}
+          className="accent-blue-600"
+        />
+        <span>Posee garantía del concesionario</span>
+      </label>
+    </div>
+
+    <div className="mb-6">
+      <p className="font-medium mb-2">Tipo de vehículo:</p>
+      <div className="flex flex-wrap gap-4">
+        {["gasolina", "diesel", "hibrido", "electrico"].map((tipo) => (
+          <label key={tipo} className="flex items-center space-x-2">
+            <input
+              type="radio"
+              name="tipo_motor"
+              value={tipo}
+              checked={formData.tipo_motor === tipo}
+              onChange={handleChange}
+              className="accent-blue-600"
+              required
+            />
+            <span className="capitalize">{tipo}</span>
+          </label>
+        ))}
       </div>
-    </main>
+    </div>
+
+    {formData.tipo_motor === "diesel" && (
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <select
+          name="mantenimiento"
+          value={formData.mantenimiento}
+          onChange={handleChange}
+          className="input"
+          required
+        >
+          <option value="">Mantenimiento cada:</option>
+          <option value="5000">5000 km</option>
+          <option value="10000">10000 km</option>
+        </select>
+      </div>
+    )}
+  </>
+)}
+{step === 6 && (
+  <div className="text-center">
+    <h3 className="text-xl md:text-2xl font-semibold text-gray-800 mb-6 border-b pb-2 border-gray-200">
+      ¡Formulario completado!
+    </h3>
+    <p className="text-gray-700 mb-6">
+      Gracias por completar la evaluación de tu vehículo. Nuestro sistema procesará la información para calcular el precio justo.
+    </p>
+    <a
+      href="/"
+      className="inline-block bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition-all"
+    >
+      ← Volver al inicio
+    </a>
+  </div>
+)}
+
+</div>
+
+<div className="mt-10 flex flex-wrap justify-between items-center gap-4">
+  {step > 1 && (
+    <button
+      onClick={() => setStep((prev) => Math.max(prev - 1, 1))}
+      className="bg-gray-100 text-gray-800 px-6 py-2 rounded-lg shadow-sm hover:shadow-md hover:bg-gray-200 transition-all"
+    >
+      ← Atrás
+    </button>
+  )}
+
+{step < 6 && (
+  <button
+    onClick={() => {
+      if (!validarPasoActual()) {
+        alert("Por favor, completa correctamente todos los campos obligatorios antes de continuar.");
+        return;
+      }
+      setStep((prev) => Math.min(prev + 1, 6));
+    }}
+    className="bg-blue-600 text-white px-6 py-2 rounded-lg shadow-md hover:shadow-lg hover:bg-blue-700 transition-all"
+  >
     
-  );
+      Siguiente →
+    </button>
+  )}
+
+  {step === 6 && (
+    <button
+      onClick={enviarFormulario}
+      disabled={enviando}
+      className={`px-6 py-2 rounded-lg shadow-md transition-all ${
+        enviando
+          ? "bg-gray-400 text-white"
+          : "bg-green-600 text-white hover:bg-green-700 hover:shadow-lg"
+      }`}
+    >
+      {enviando ? (
+        <span className="flex items-center gap-2">
+          <Loader2 className="animate-spin h-5 w-5" />
+          Enviando...
+        </span>
+      ) : (
+        "Enviar formulario"
+      )}
+    </button>
+  )}
+</div>
+</div>
+</main>
+);
 }

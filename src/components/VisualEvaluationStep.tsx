@@ -6,7 +6,10 @@ interface VisualEvaluationStepProps {
   handleChange: (e: ChangeEvent<HTMLSelectElement>) => void;
 }
 
-const VisualEvaluationStep: React.FC<VisualEvaluationStepProps> = ({ formData, handleChange }) => {
+const VisualEvaluationStep: React.FC<VisualEvaluationStepProps> = ({
+  formData,
+  handleChange,
+}) => {
   const campos = [
     { name: "pintura", label: "¿Qué tal está la pintura?" },
     { name: "faros", label: "¿Funcionan bien los faros?" },
@@ -25,7 +28,7 @@ const VisualEvaluationStep: React.FC<VisualEvaluationStepProps> = ({ formData, h
     { name: "techo", label: "¿El techo tiene abolladuras?" },
     { name: "esfera_controles", label: "¿Los controles del tablero funcionan?" },
     { name: "chapas", label: "¿Las chapas están funcionales?" },
-    { name: "cinturones", label: "¿Funcionan los cinturones de seguridad?" }
+    { name: "cinturones", label: "¿Funcionan los cinturones de seguridad?" },
   ];
 
   return (
@@ -43,7 +46,7 @@ const VisualEvaluationStep: React.FC<VisualEvaluationStepProps> = ({ formData, h
             name={name}
             value={formData[name] || ""}
             onChange={handleChange}
-            className="input bg-white border border-gray-300 rounded-lg shadow-sm"
+            className="input bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500"
           >
             <option value="">{label}</option>
             {[1, 2, 3, 4, 5].map((valor) => (
