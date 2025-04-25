@@ -11,6 +11,7 @@ interface VehiculoRef {
   anio: number;
   tipo_vehiculo: string;
   combustible: string;
+  kilometraje: number;
   precio1: number;
   precio2: number;
   precio3: number;
@@ -24,12 +25,14 @@ export default function ReferenciaAdmin() {
     anio: new Date().getFullYear(),
     tipo_vehiculo: "auto",
     combustible: "gasolina",
+    kilometraje: 0,
     precio1: 0,
     precio2: 0,
     precio3: 0,
   });
   const [editId, setEditId] = useState<number | null>(null);
   const [cargando, setCargando] = useState(true);
+  const [guardando, setGuardando] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -58,21 +61,45 @@ export default function ReferenciaAdmin() {
   };
 
   const handleSubmit = async () => {
-    if (!form.marca || !form.modelo || !form.anio) return;
+    if (!form.marca || !form.modelo || !form.anio) {
+      alert("Por favor llena todos los campos obligatorios.");
+      return;
+    }
+
+    setGuardando(true);
 
     if (editId) {
       await supabase.from("vehiculos_ref").update(form).eq("id", editId);
+      alert("Vehículo actualizado correctamente.");
       setEditId(null);
     } else {
-      const { data } = await supabase
+      const { data: existente } = await supabase
         .from("vehiculos_ref")
         .select("id")
         .eq("marca", form.marca)
         .eq("modelo", form.modelo)
-        .eq("anio", form.anio);
+        .eq("anio", form.anio)
+        .eq("tipo_vehiculo", form.tipo_vehiculo)
+        .eq("combustible", form.combustible)
+        .eq("kilometraje", form.kilometraje);
 
-      if (data?.length) return alert("Ya existe este vehículo");
-      await supabase.from("vehiculos_ref").insert([form]);
+      if (existente?.length) {
+        alert("Este vehículo ya existe en la base de datos.");
+        setGuardando(false);
+        return;
+      }
+
+      const { error } = await supabase.from("vehiculos_ref").insert([form]);
+
+      if (error) {
+        console.error("Error al insertar:", error.message);
+        alert("Hubo un error al guardar el vehículo: " + error.message);
+        setGuardando(false);
+        return;
+      }
+      
+      alert("Vehículo agregado correctamente.");
+      
     }
 
     setForm({
@@ -81,21 +108,26 @@ export default function ReferenciaAdmin() {
       anio: new Date().getFullYear(),
       tipo_vehiculo: "auto",
       combustible: "gasolina",
+      kilometraje: 0,
       precio1: 0,
       precio2: 0,
       precio3: 0,
     });
     fetchVehiculos();
+    setGuardando(false);
   };
 
   const handleDelete = async (id: number) => {
-    await supabase.from("vehiculos_ref").delete().eq("id", id);
-    fetchVehiculos();
+    if (confirm("¿Seguro que deseas eliminar este vehículo?")) {
+      await supabase.from("vehiculos_ref").delete().eq("id", id);
+      fetchVehiculos();
+    }
   };
 
   const handleEdit = (vehiculo: VehiculoRef) => {
-    setForm({ ...vehiculo });
-    setEditId(vehiculo.id);
+    const { id, ...vehiculoSinId } = vehiculo;
+    setForm(vehiculoSinId);
+    setEditId(id);
   };
 
   if (cargando) {
@@ -109,27 +141,131 @@ export default function ReferenciaAdmin() {
   return (
     <div className="p-6 max-w-6xl mx-auto">
       <h1 className="text-2xl font-bold mb-4">Gestión de Vehículos de Referencia</h1>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        <input placeholder="Marca" value={form.marca} onChange={e => setForm({ ...form, marca: e.target.value })} className="input" />
-        <input placeholder="Modelo" value={form.modelo} onChange={e => setForm({ ...form, modelo: e.target.value })} className="input" />
-        <input type="number" placeholder="Año" value={form.anio} onChange={e => setForm({ ...form, anio: parseInt(e.target.value) })} className="input" />
-        <select value={form.tipo_vehiculo} onChange={e => setForm({ ...form, tipo_vehiculo: e.target.value })} className="input">
-          <option value="auto">Auto</option>
-          <option value="suv">SUV</option>
-          <option value="camioneta">Camioneta</option>
-          <option value="moto">Moto</option>
-        </select>
-        <select value={form.combustible} onChange={e => setForm({ ...form, combustible: e.target.value })} className="input">
-          <option value="gasolina">Gasolina</option>
-          <option value="diesel">Diésel</option>
-          <option value="electrico">Eléctrico</option>
-          <option value="hibrido">Híbrido</option>
-        </select>
-        <input type="number" placeholder="Precio referencia ($)" value={form.precio1} onChange={e => setForm({ ...form, precio1: parseFloat(e.target.value) })} className="input" />
+        {/* Marca */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Marca</label>
+          <input
+            placeholder="Ej. TOYOTA"
+            value={form.marca}
+            onChange={(e) => setForm({ ...form, marca: e.target.value.toUpperCase() })}
+            className="input"
+          />
+        </div>
+
+        {/* Modelo */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Modelo</label>
+          <input
+            placeholder="Ej. COROLLA"
+            value={form.modelo}
+            onChange={(e) => setForm({ ...form, modelo: e.target.value.toUpperCase() })}
+            className="input"
+          />
+        </div>
+
+        {/* Año */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Año</label>
+          <input
+            type="number"
+            placeholder="Ej. 2020"
+            value={form.anio}
+            onChange={(e) => setForm({ ...form, anio: parseInt(e.target.value) || 0 })}
+            className="input"
+          />
+        </div>
+
+        {/* Tipo */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Tipo de vehículo</label>
+          <select
+            value={form.tipo_vehiculo}
+            onChange={(e) => setForm({ ...form, tipo_vehiculo: e.target.value })}
+            className="input"
+          >
+            <option value="auto">Auto</option>
+            <option value="suv">SUV</option>
+            <option value="camioneta">Camioneta</option>
+            <option value="moto">Moto</option>
+          </select>
+        </div>
+
+        {/* Combustible */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Combustible</label>
+          <select
+            value={form.combustible}
+            onChange={(e) => setForm({ ...form, combustible: e.target.value })}
+            className="input"
+          >
+            <option value="gasolina">Gasolina</option>
+            <option value="diesel">Diésel</option>
+            <option value="electrico">Eléctrico</option>
+            <option value="hibrido">Híbrido</option>
+          </select>
+        </div>
+
+        {/* Kilometraje */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Kilometraje (km)</label>
+          <input
+            type="number"
+            placeholder="Ej. 75000"
+            value={form.kilometraje}
+            onChange={(e) => setForm({ ...form, kilometraje: parseInt(e.target.value) || 0 })}
+            className="input"
+          />
+        </div>
+
+        {/* Precio 1 */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Precio 1 ($)</label>
+          <input
+            type="number"
+            placeholder="Ej. 13500"
+            value={form.precio1}
+            onChange={(e) => setForm({ ...form, precio1: parseFloat(e.target.value) || 0 })}
+            className="input"
+          />
+        </div>
+
+        {/* Precio 2 */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Precio 2 ($)</label>
+          <input
+            type="number"
+            placeholder="Ej. 13200"
+            value={form.precio2}
+            onChange={(e) => setForm({ ...form, precio2: parseFloat(e.target.value) || 0 })}
+            className="input"
+          />
+        </div>
+
+        {/* Precio 3 */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Precio 3 ($)</label>
+          <input
+            type="number"
+            placeholder="Ej. 12900"
+            value={form.precio3}
+            onChange={(e) => setForm({ ...form, precio3: parseFloat(e.target.value) || 0 })}
+            className="input"
+          />
+        </div>
       </div>
-      <button onClick={handleSubmit} className="bg-blue-600 text-white px-6 py-2 rounded-xl mb-6">
-        {editId ? "Actualizar" : "Agregar"} vehículo
+
+      <button
+        onClick={handleSubmit}
+        disabled={guardando}
+        className={`${
+          guardando ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
+        } text-white px-6 py-2 rounded-xl mb-6 transition-colors`}
+      >
+        {guardando ? "Guardando..." : editId ? "Actualizar vehículo" : "Agregar vehículo"}
       </button>
+
       <div className="overflow-auto">
         <table className="min-w-full border">
           <thead>
@@ -139,9 +275,10 @@ export default function ReferenciaAdmin() {
               <th className="px-4 py-2">Año</th>
               <th className="px-4 py-2">Tipo</th>
               <th className="px-4 py-2">Combustible</th>
-              <th className="px-4 py-2">Precio1 ($)</th>
-              <th className="px-4 py-2">Precio2 ($)</th>
-              <th className="px-4 py-2">Precio3 ($)</th>
+              <th className="px-4 py-2">Kilometraje</th>
+              <th className="px-4 py-2">Precio 1</th>
+              <th className="px-4 py-2">Precio 2</th>
+              <th className="px-4 py-2">Precio 3</th>
               <th className="px-4 py-2">Acciones</th>
             </tr>
           </thead>
@@ -154,15 +291,26 @@ export default function ReferenciaAdmin() {
                 <td className="px-4 py-2">{v.tipo_vehiculo}</td>
                 <td className="px-4 py-2">{v.combustible}</td>
                 <td className="px-4 py-2">
-  {typeof v.precio1 === "number" ? `$${v.precio1.toLocaleString()}` : "—"}
-</td>
-<td className="px-4 py-2">
-  {typeof v.precio1 === "number" ? `$${v.precio2.toLocaleString()}` : "—"}
-</td>
-<td className="px-4 py-2">
-  {typeof v.precio1 === "number" ? `$${v.precio3.toLocaleString()}` : "—"}
+  {v.kilometraje != null
+    ? `${v.kilometraje.toLocaleString()} km`
+    : "—"}
 </td>
 
+                <td className="px-4 py-2">
+                  {typeof v.precio1 === "number"
+                    ? `$${v.precio1.toLocaleString()}`
+                    : "—"}
+                </td>
+                <td className="px-4 py-2">
+                  {typeof v.precio2 === "number"
+                    ? `$${v.precio2.toLocaleString()}`
+                    : "—"}
+                </td>
+                <td className="px-4 py-2">
+                  {typeof v.precio3 === "number"
+                    ? `$${v.precio3.toLocaleString()}`
+                    : "—"}
+                </td>
                 <td className="px-4 py-2 space-x-2">
                   <button onClick={() => handleEdit(v)} className="text-blue-600 hover:underline">Editar</button>
                   <button onClick={() => handleDelete(v.id)} className="text-red-600 hover:underline">Eliminar</button>
