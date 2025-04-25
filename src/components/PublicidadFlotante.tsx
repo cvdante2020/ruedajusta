@@ -38,7 +38,7 @@ export default function PublicidadChatbot() {
           <div>
             <h4 className="text-lg font-bold mb-1">¡Crea tu Chatbot Hoy!</h4>
             <p className="text-sm">
-              Integra un asistente inteligente en tu sitio web y negocio en minutos . Mejora la atención y ventas por tan solo 49,99 USD mensual🚀
+              Deja que un asistente inteligente en Whatsapp resuelva tu gestión. Mejora la atención de tus clientes o tus ventas, por tan solo 49,99 USD mensuales🚀, sin costo de implementación
             </p>
            {/* Botón CTA */}
         <a href="/chatbot" className="block w-full text-center ...">
