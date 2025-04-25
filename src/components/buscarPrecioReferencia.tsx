@@ -11,20 +11,34 @@ export async function buscarPrecioReferencia(params: {
 
   const { data, error } = await supabase
     .from("vehiculos_ref")
-    .select("precio_referencia")
+    .select("precio1, precio2, precio3")
     .eq("marca", marca)
     .eq("modelo", modelo)
     .eq("anio", anio)
     .eq("tipo_vehiculo", tipo_vehiculo)
     .eq("combustible", combustible)
-    .limit(1) // <--- esto previene error por múltiples
-    .single();
+    .limit(1)
+    .single(); // OK si solo quieres el primero encontrado
 
   if (error || !data) {
     console.warn("⚠️ Precio de referencia no encontrado:", error?.message || "No data");
     return null;
   }
-  console.log("💾 Precio base encontrado en Supabase:", data.precio_referencia);
 
-  return data.precio_referencia;
+  const precios = [
+    typeof data.precio1 === 'string' ? parseFloat(data.precio1) : data.precio1,
+    typeof data.precio2 === 'string' ? parseFloat(data.precio2) : data.precio2,
+    typeof data.precio3 === 'string' ? parseFloat(data.precio3) : data.precio3
+  ].filter((p) => typeof p === 'number' && !isNaN(p));
+
+  if (precios.length === 0) {
+    console.warn("⚠️ Precios inválidos encontrados para este vehículo.");
+    return null;
+  }
+
+  const precioPromedio = precios.reduce((a, b) => a + b, 0) / precios.length;
+
+  console.log("💾 Precio base promedio encontrado en Supabase:", precioPromedio);
+
+  return Math.round(precioPromedio);
 }

@@ -14,6 +14,7 @@ interface FormDataTipo {
   anio: string;
   kilometraje: string;
   duenios: string;
+  tipo_vehiculo?: string; // Nuevo: Tipo de vehículo para definir mínimos
   garantia?: boolean;
 }
 
@@ -25,6 +26,7 @@ export async function calcularValoracion(formData: FormDataTipo) {
 
   const marca = formData.marca?.toLowerCase().trim();
   const modelo = formData.modelo?.toLowerCase().trim();
+  const tipoVehiculo = (formData.tipo_vehiculo || 'auto').toLowerCase(); // Por defecto "auto"
 
   const { data, error } = await supabase
     .from('vehiculos_ref')
@@ -61,15 +63,16 @@ export async function calcularValoracion(formData: FormDataTipo) {
   const precioBase = precios.reduce((a, b) => a + b, 0) / precios.length;
   let valor = precioBase;
 
-  // 1. Depreciación más justa (1% por año)
+  // 1. Depreciación más justa (0.8% por año)
   const edad = anioActual - anioVehiculo;
-  const depreciacionPorAnio = 0.01;
+  const depreciacionPorAnio = 0.008; // menos agresiva
   valor -= precioBase * depreciacionPorAnio * edad;
 
-  // 2. Kilometraje
+  // 2. Kilometraje (depreciación y bonificación)
   if (kilometraje > 200000) valor -= precioBase * 0.03;
   else if (kilometraje > 150000) valor -= precioBase * 0.02;
   else if (kilometraje > 100000) valor -= precioBase * 0.01;
+  else if (kilometraje > 0 && kilometraje < 60000) valor += precioBase * 0.015; // Bonificación por poco uso
 
   // 3. Dueños
   if (duenios === 2) valor -= precioBase * 0.005;
@@ -87,22 +90,41 @@ export async function calcularValoracion(formData: FormDataTipo) {
 
   if (promedioVisual >= 4.5) valor += 300;
   else if (promedioVisual <= 2.5) valor -= 400;
+  else {
+    const ajusteVisual = (promedioVisual - 3) * 100; // cada punto sobre/bajo 3 ajusta ±100
+    valor += ajusteVisual;
+  }
 
-  // 5. Tecnología y confort (checklist)
+  // 5. Tecnología y confort (ponderado)
   const extras = [
-    "techoCorredizo", "camara_retro", "camara_frontal", "aire_asientos",
-    "aireAcondicionado", "vidriosConduct", "vidriosTodos",
-    "sensorImpacto", "sensorProximidad", "retrovisoresElectricos",
-    "sensores_retro", "sensores_estacionamiento", "aparcamiento_autonomo"
+    { campo: "techoCorredizo", bonus: 50 },
+    { campo: "camara_retro", bonus: 80 },
+    { campo: "camara_frontal", bonus: 80 },
+    { campo: "aire_asientos", bonus: 60 },
+    { campo: "aireAcondicionado", bonus: 40 },
+    { campo: "vidriosConduct", bonus: 30 },
+    { campo: "vidriosTodos", bonus: 40 },
+    { campo: "sensorImpacto", bonus: 80 },
+    { campo: "sensorProximidad", bonus: 70 },
+    { campo: "retrovisoresElectricos", bonus: 40 },
+    { campo: "sensores_retro", bonus: 50 },
+    { campo: "sensores_estacionamiento", bonus: 60 },
+    { campo: "aparcamiento_autonomo", bonus: 100 },
   ];
-  const extrasActivos = extras.filter((e) => formData[e]).length;
-  valor += extrasActivos * 50;
+  extras.forEach(({ campo, bonus }) => {
+    if (formData[campo]) valor += bonus;
+  });
 
   // 6. Garantía
   if (formData.garantia) valor += 300;
 
-  // 7. Resultado final
-  const valorFinal = Math.max(2000, Math.round(valor));
+  // 7. Mínimos según tipo de vehículo
+  let minimoPorTipo = 2000;
+  if (tipoVehiculo === "moto") minimoPorTipo = 800;
+  else if (tipoVehiculo === "suv" || tipoVehiculo === "camioneta") minimoPorTipo = 3000;
+
+  // 8. Resultado final
+  const valorFinal = Math.max(minimoPorTipo, Math.round(valor));
   const porcentaje = valorFinal / precioBase;
   const puntaje = Math.round(porcentaje * 100);
 
