@@ -185,10 +185,14 @@ export default function ReferenciaAdmin() {
             onChange={(e) => setForm({ ...form, tipo_vehiculo: e.target.value })}
             className="input"
           >
-            <option value="auto">Auto</option>
+            <option value="auto">Sedan</option>
+            <option value="camioneta">Camioneta Doble Cabina</option>
             <option value="suv">SUV</option>
-            <option value="camioneta">Camioneta</option>
+            <option value="camioneta">Todo Terreno</option>
             <option value="moto">Moto</option>
+            <option value="camioneta">Camioneta Cabina Simple</option>
+            <option value="camioneta">Hatchback</option>
+            <option value="camioneta">Camión</option>
           </select>
         </div>
 
