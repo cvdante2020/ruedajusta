@@ -4,41 +4,41 @@ export async function buscarPrecioReferencia(params: {
   marca: string;
   modelo: string;
   anio: number;
-  tipo_vehiculo: string;
-  combustible: string;
+  tipo_vehiculo?: string;
+  combustible?: string;
 }): Promise<number | null> {
-  const { marca, modelo, anio, tipo_vehiculo, combustible } = params;
+  const { marca, modelo, anio } = params;
 
+  // 🟨 Buscar todas las coincidencias de ese modelo, marca y año sin filtrar por tipo o combustible
   const { data, error } = await supabase
     .from("vehiculos_ref")
-    .select("precio1, precio2, precio3")
+    .select("precio1, precio2, precio3, tipo_vehiculo, combustible")
     .eq("marca", marca)
     .eq("modelo", modelo)
-    .eq("anio", anio)
-    .eq("tipo_vehiculo", tipo_vehiculo)
-    .eq("combustible", combustible)
-    .limit(1)
-    .single(); // OK si solo quieres el primero encontrado
+    .eq("anio", anio);
 
-  if (error || !data) {
+  if (error || !data || data.length === 0) {
     console.warn("⚠️ Precio de referencia no encontrado:", error?.message || "No data");
     return null;
   }
 
+  // ✅ Opcional: Mostrar qué coincidencias se encontraron
+  console.log("Coincidencias encontradas:", data.map(d => ({
+    tipo: d.tipo_vehiculo,
+    combustible: d.combustible
+  })));
+
+  // ✅ Tomar la primera coincidencia para calcular el promedio
+  const ref = data[0];
+
   const precios = [
-    typeof data.precio1 === 'string' ? parseFloat(data.precio1) : data.precio1,
-    typeof data.precio2 === 'string' ? parseFloat(data.precio2) : data.precio2,
-    typeof data.precio3 === 'string' ? parseFloat(data.precio3) : data.precio3
-  ].filter((p) => typeof p === 'number' && !isNaN(p));
+    typeof ref.precio1 === "string" ? parseFloat(ref.precio1) : ref.precio1,
+    typeof ref.precio2 === "string" ? parseFloat(ref.precio2) : ref.precio2,
+    typeof ref.precio3 === "string" ? parseFloat(ref.precio3) : ref.precio3,
+  ].filter(p => typeof p === "number" && !isNaN(p));
 
-  if (precios.length === 0) {
-    console.warn("⚠️ Precios inválidos encontrados para este vehículo.");
-    return null;
-  }
+  if (precios.length === 0) return null;
 
-  const precioPromedio = precios.reduce((a, b) => a + b, 0) / precios.length;
-
-  console.log("💾 Precio base promedio encontrado en Supabase:", precioPromedio);
-
-  return Math.round(precioPromedio);
+  const promedio = precios.reduce((a, b) => a + b, 0) / precios.length;
+  return Math.round(promedio);
 }
