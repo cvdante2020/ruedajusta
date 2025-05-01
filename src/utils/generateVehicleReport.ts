@@ -36,6 +36,7 @@ interface ReportData {
   mantenimiento: string;
   vidriosTodos: boolean;
   vidriosConduct: boolean;
+  tipo: string;
 }
 
 export const generateVehicleReport = async (data: ReportData) => {
@@ -88,7 +89,9 @@ export const generateVehicleReport = async (data: ReportData) => {
   doc.text(`Ciudad: ${data.ciudad}`, 12, y + 18);
   doc.text(`Marca: ${data.Marca}`, 110, y + 12);
   doc.text(`Modelo: ${data.modelo}`, 110, y + 18);
-  doc.text(`Año: ${data.anio}`, 110, y + 24);
+doc.text(`Tipo: ${data.tipo}`, 110, y + 24);
+doc.text(`Año: ${data.anio}`, 110, y + 30);
+
   doc.text(`Placa: ${data.placa}`, 12, y + 24);
   salto(35);
 
