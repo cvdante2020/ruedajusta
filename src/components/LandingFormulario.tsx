@@ -133,14 +133,38 @@ export default function LandingFormulario() {
     setEnviando(false);
   };
 
+  <div className="bg-[#f0fdf4] border border-green-200 text-green-800 text-sm rounded-xl px-4 py-3 mb-5 shadow-sm">
+  <p className="font-semibold">🎯 ¿Por qué dejar tus datos?</p>
+  <ul className="list-disc list-inside text-xs mt-1 text-green-700">
+    <li>Recibe ofertas exclusivas directamente en tu WhatsApp</li>
+    <li>Te avisaremos cuando encontremos el vehículo ideal para ti</li>
+  </ul>
+</div>
+
   return (
+    
     <form onSubmit={handleSubmit} className="max-w-2xl mx-auto p-6 bg-white rounded-xl shadow-md space-y-4">
       <div className="text-center mb-6">
+      <div className="mt-4 text-center bg-[#f8fafc] text-gray-600 text-xs border border-gray-200 rounded-xl p-3 shadow-sm max-w-md mx-auto">
+  🎁 <strong className="text-[#006654]">¡Participa por una Giftcard de $50!</strong>  
+ 
+  Sorteo válido hasta <strong>1 de Diciembre 2025</strong>.
+</div>
+
         <h2 className="text-2xl font-bold text-[#006654]">¿Qué vehículo estás buscando?</h2>
         <p className="text-gray-600 mt-2 text-sm">
           Recibe <strong>ofertas únicas</strong> y <strong>directas</strong> en tu WhatsApp, <span className="text-green-600 font-semibold">¡sin intermediarios!</span>
+
+          
         </p>
       </div>
+      <div className="bg-[#f0fdf4] border border-green-200 text-green-800 text-sm rounded-xl px-4 py-3 mb-5 shadow-sm">
+  <p className="font-semibold">🎯 ¿Por qué dejar tus datos?</p>
+  <ul className="list-disc list-inside text-xs mt-1 text-green-700">
+    <li>Recibe ofertas exclusivas directamente en tu WhatsApp</li>
+    <li>Te avisaremos cuando encontremos el vehículo ideal para ti</li>
+  </ul>
+</div>
 
       <input name="nombre" placeholder="Tu nombre" value={form.nombre} onChange={handleChange} className="input" required />
       <input name="email" placeholder="Tu correo" value={form.email} onChange={handleChange} className="input" type="email" required />
