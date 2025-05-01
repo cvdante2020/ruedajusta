@@ -309,7 +309,19 @@ useEffect(() => {
 
       else {
       setMensaje("Formulario enviado correctamente ✅ Redirigiendo...");
-
+      await fetch("/api/notificar-evaluacion", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nombre: formData.nombre,
+          apellido: formData.apellido,
+          ciudad: formData.ciudad,
+          Marca: formData.Marca,
+          modelo: formData.modelo,
+          anio: formData.anio,
+        }),
+      });
+      
       try {
         await generateVehicleReport({
           nombre: formData.nombre,
@@ -358,6 +370,7 @@ useEffect(() => {
     }
   };
 
+  
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-100 to-blue-100 py-16 px-6">
       <div className="max-w-4xl mx-auto bg-white/90 backdrop-blur rounded-2xl p-10 md:p-12 shadow-xl border border-gray-200 transition-all">
@@ -371,8 +384,19 @@ useEffect(() => {
         <div className="mb-8 text-center">
           <h2 className="text-2xl font-bold text-gray-800">
             Evaluación Vehicular - Seamos sinceros - Paso {step} de 6
+            <div className="mt-4 text-center bg-[#f8fafc] text-gray-600 text-xs border border-gray-200 rounded-xl p-3 shadow-sm max-w-md mx-auto">
+  🎁 <strong className="text-[#006654]">¡Participa por una Giftcard de $100!</strong>  
+  <br />
+  Al completar tu evaluación estarás participando automáticamente. 
+  <br />
+  Sorteo válido hasta <strong>1 de Diciembre 2025</strong>.
+</div>
+
           </h2>
         </div>
+        <div className="bg-blue-50 border border-blue-200 text-blue-800 text-xs rounded-xl px-4 py-2 mb-4 text-center shadow-sm max-w-xl mx-auto">
+  📄 Al finalizar esta evaluación, recibirás gratuitamente tu <strong>certificado PDF</strong> con el valor estimado y estado de tu vehículo.
+</div>
 
         <div className="animate-fade-up transition-all duration-500 bg-white rounded-xl shadow-md hover:shadow-lg p-6 md:p-8 mb-10">
           {step === 1 && (
