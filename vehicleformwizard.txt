@@ -21,66 +21,6 @@ export default function VehicleFormWizard() {
 const [modelos, setModelos] = useState<string[]>([]);
 const [tiposPorModelo, setTiposPorModelo] = useState<Record<string, string>>({});
 
-const [formData, setFormData] = useState({
-  nombre: "",
-  apellido: "",
-  email: "",
-  celular: "",
-  ciudad: "",
-  Marca: "",
-  modelo: "",
-  anio: "",
-  placa_letra: "",
-  placa_numero: "",
-  matriculacion: "",
-  duenios: "",
-  pintura: "",
-  faros: "",
-  tapiceria: "",
-  vidrios: "",
-  sensores: "",
-  encendido: "",
-  asientos: "",
-  airbags: "",
-  confort_extras: "",
-  kilometraje: "",
-  garantia: false,
-  tipo_motor: "",
-  mantenimiento: "",
-  parabrisas_delantero: "",
-  parabrisas_posterior: "",
-  ventanas: "",
-  carroceria: "",
-  persiana: "",
-  llantas: "",
-  llanta_emergencia: "",
-  piso: "",
-  techo: "",
-  esfera_controles: "",
-  chapas: "",
-  cinturones: "",
-  sensoresCinturon: false,
-  techoCorredizo: false,
-  sensores_estacionamiento: false,
-  sensores_retro: false,
-  camara_retro: false,
-  aparcamiento_autonomo: false,
-  retrovisoresElectricos: false,
-  camara_frontal: false,
-  sensorProximidad: false,
-  sensorImpacto: false,
-  aire_asientos: false,
-  aireAcondicionado: false,
-  vidriosTodos: false,
-  vidriosConduct: false,
-  asiento_conductor: "",
-  asientos_pasajeros: "",
-  anio_matriculacion: "",
-  direccionales_frontales: "",
-  tipo:""
-});
-
-
 useEffect(() => {
   const cargarMarcas = async () => {
     const { data, error } = await supabase.from("marcas_modelos").select("marca").order("marca", { ascending: true });
@@ -120,6 +60,63 @@ useEffect(() => {
 
 
 
+  const [formData, setFormData] = useState({
+    nombre: "",
+    apellido: "",
+    email: "",
+    celular: "",
+    ciudad: "",
+    Marca: "",
+    modelo: "",
+    anio: "",
+    placa_letra: "",
+    placa_numero: "",
+    matriculacion: "",
+    duenios: "",
+    pintura: "",
+    faros: "",
+    tapiceria: "",
+    vidrios: "",
+    sensores: "",
+    encendido: "",
+    asientos: "",
+    airbags: "",
+    confort_extras: "",
+    kilometraje: "",
+    garantia: false,
+    tipo_motor: "",
+    mantenimiento: "",
+    parabrisas_delantero: "",
+    parabrisas_posterior: "",
+    ventanas: "",
+    carroceria: "",
+    persiana: "",
+    llantas: "",
+    llanta_emergencia: "",
+    piso: "",
+    techo: "",
+    esfera_controles: "",
+    chapas: "",
+    cinturones: "",
+    sensoresCinturon: false,
+    techoCorredizo: false,
+    sensores_estacionamiento: false,
+    sensores_retro: false,
+    camara_retro: false,
+    aparcamiento_autonomo: false,
+    retrovisoresElectricos: false,
+    camara_frontal: false,
+    sensorProximidad: false,
+    sensorImpacto: false,
+    aire_asientos: false,
+    aireAcondicionado: false,
+    vidriosTodos: false,
+    vidriosConduct: false,
+    asiento_conductor: "",
+    asientos_pasajeros: "",
+    anio_matriculacion: "",
+    direccionales_frontales: ""
+  });
 
   const progreso = (step / 6) * 100;
 
@@ -239,16 +236,14 @@ useEffect(() => {
   const modeloNormalizado = await obtenerSugerenciaFuzzy("modelo", formData.modelo);
   const tipoNormalizado = "auto";
   const combustibleNormalizado = await obtenerSugerenciaFuzzy("combustible", formData.tipo_motor);
-  const tipoDetectado = tiposPorModelo[formData.modelo] || "";
 
   const precioBase = await buscarPrecioReferencia({
     marca: marcaNormalizada,
     modelo: modeloNormalizado,
     anio: parseInt(formData.anio),
-    tipo_vehiculo: tipoDetectado,
+    tipo_vehiculo: tipoNormalizado,
     combustible: combustibleNormalizado,
   });
-  
 
   console.log("📦 Buscando referencia con:", {
     marca: formData.Marca,
@@ -271,7 +266,6 @@ useEffect(() => {
 
   const payload = {
     ...formData,
-    tipo: tipoDetectado,
     kilometraje: parseInt(formData.kilometraje) || null,
     anio: parseInt(formData.anio) || null,
     placa_numero: parseInt(formData.placa_numero) || null,
@@ -346,7 +340,6 @@ useEffect(() => {
           mantenimiento: formData.mantenimiento,
           vidriosTodos: formData.vidriosTodos,
           vidriosConduct: formData.vidriosConduct,
-          tipo: tipoDetectado,
         });
       } catch (err) {
         console.error("❌ Error al generar el PDF:", err);
