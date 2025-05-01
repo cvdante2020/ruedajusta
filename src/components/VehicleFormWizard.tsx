@@ -10,6 +10,8 @@ import { buscarPrecioReferencia } from "./buscarPrecioReferencia";
 import { calcularValoracion } from "@/utils/calcularValoracion";
 import VisualEvaluationStep from "./VisualEvaluationStep";
 import Fuse from "fuse.js";
+import { responderConIA } from "@/utils/responderConIA";
+
 
 
 export default function VehicleFormWizard() {
@@ -20,6 +22,8 @@ export default function VehicleFormWizard() {
   const [marcas, setMarcas] = useState<string[]>([]);
 const [modelos, setModelos] = useState<string[]>([]);
 const [tiposPorModelo, setTiposPorModelo] = useState<Record<string, string>>({});
+const [mensajeIA, setMensajeIA] = useState<string | null>(null);
+
 
 const [formData, setFormData] = useState({
   nombre: "",
@@ -258,10 +262,17 @@ useEffect(() => {
     combustible: formData.tipo_motor,
   });
   if (!precioBase) {
-    setMensaje("❌ No existe un valor de referencia para esta combinación de marca, modelo y año. Puedes agregarlo desde el panel de administración o subir un archivo de referencia.");
+    const respuestaIA = await responderConIA({
+      marca: formData.Marca,
+      modelo: formData.modelo,
+      anio: parseInt(formData.anio),
+    });
+    setMensajeIA(respuestaIA);
+    setMensaje(""); // limpiar mensaje anterior si lo hubiera
     setEnviando(false);
     return;
   }
+  
 
   const valoracion = await calcularValoracion({
     ...formData,
@@ -790,6 +801,13 @@ useEffect(() => {
       )}
     </button>
   )}
+
+{mensajeIA && (
+  <div className="mt-4 bg-yellow-50 border border-yellow-300 text-yellow-800 text-sm p-4 rounded-xl shadow-sm max-w-3xl">
+    {mensajeIA}
+  </div>
+)}
+
 </div>
 </div>
 </main>
