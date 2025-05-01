@@ -88,7 +88,6 @@ export default function LandingFormulario() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validaciones
     if (!/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(form.nombre)) {
       alert("El nombre solo debe contener letras."); return;
     }
@@ -122,6 +121,22 @@ export default function LandingFormulario() {
     setMensaje("Enviando datos...");
 
     const { error } = await supabase.from("solicitudes_ofertas").insert([form]);
+
+    // ✅ Notificar por email y WhatsApp
+    await fetch("/api/notificar-busqueda", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        nombre: form.nombre,
+        celular: form.whatsapp,
+        email: form.email,
+        ciudad: form.ciudad,
+        marca: form.marca,
+        modelo: form.modelo,
+        anio: form.anioMax,
+      }),
+    });
+
     if (error) {
       console.error(error);
       setMensaje("❌ Error al enviar el formulario");
@@ -132,14 +147,6 @@ export default function LandingFormulario() {
 
     setEnviando(false);
   };
-
-  <div className="bg-[#f0fdf4] border border-green-200 text-green-800 text-sm rounded-xl px-4 py-3 mb-5 shadow-sm">
-  <p className="font-semibold">🎯 ¿Por qué dejar tus datos?</p>
-  <ul className="list-disc list-inside text-xs mt-1 text-green-700">
-    <li>Recibe ofertas exclusivas directamente en tu WhatsApp</li>
-    <li>Te avisaremos cuando encontremos el vehículo ideal para ti</li>
-  </ul>
-</div>
 
   return (
     

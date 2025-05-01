@@ -33,7 +33,6 @@ export default function ChatbotLanding() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validaciones
     const nombreValido = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(form.nombre);
     if (!nombreValido) {
       alert("El nombre solo debe contener letras.");
@@ -58,18 +57,37 @@ export default function ChatbotLanding() {
     }
 
     const { error } = await supabase.from("chatbot_interesados").insert([form]);
+    await fetch("/api/notificar-chatbot", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form),
+    });
+
     if (!error) setEnviado(true);
   };
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-4">
       <div className="bg-white p-6 rounded-xl shadow-xl max-w-xl w-full">
-        <h1 className="text-2xl font-bold mb-4 text-brand-primary">¡Queremos conocerte!</h1>
-        <p className="mb-6 text-gray-600">Completa este formulario y en 72 horas tendrás tu chatbot activo.</p>
+        <h1 className="text-2xl font-bold mb-4 text-brand-primary text-center">🚀 ¡Automatiza tu negocio con un Chatbot!</h1>
+        <p className="mb-6 text-gray-600 text-center">
+          Completa el formulario y en 7 días hábiles tendrás tu asistente virtual funcionando.
+        </p>
+
+        <div className="bg-blue-50 text-blue-800 text-sm border border-blue-200 rounded-lg p-4 mb-6">
+          <p className="font-semibold mb-2">🤖 ¿Qué incluye tu chatbot?</p>
+          <ul className="list-disc list-inside text-xs space-y-1">
+            <li>✔️ Atención automática 24/7 en WhatsApp</li>
+            <li>✔️ Respuesta a preguntas frecuentes</li>
+            <li>✔️ Agendamiento, consultas o ventas</li>
+            <li>✔️ Panel para gestionar tus conversaciones</li>
+            <li>💡 Ideal para: negocios locales, tiendas online, consultorios, concesionarios y más</li>
+          </ul>
+        </div>
 
         {enviado ? (
           <div className="text-center">
-            <p className="text-green-600 font-semibold text-lg mb-2">✅ ¡Gracias!</p>
+            <p className="text-green-600 font-semibold text-lg mb-2">Más de 100 Bots integrados a la fecha✅ ¡Gracias!</p>
             <p className="text-gray-700">Un ejecutivo se pondrá en contacto contigo. Serás redirigido automáticamente...</p>
           </div>
         ) : (
@@ -114,12 +132,14 @@ export default function ChatbotLanding() {
               <option value="Tienda de Ropa">Tienda de Ropa</option>
               <option value="Consultorio Dental">Consultorio Dental</option>
               <option value="Consultorio Médico">Consultorio Médico</option>
+              <option value="Restaurante">Restaurante</option>
+              <option value="Farmacia">Farmacia</option>
               <option value="Otros">Otros</option>
             </select>
             <textarea
               name="comentario"
-              placeholder="Cuéntanos con mucho detalle tu negocio"
-              rows={3}
+              placeholder="Cuéntanos con detalle tu negocio, qué quieres automatizar y cómo atiendes actualmente"
+              rows={4}
               value={form.comentario}
               onChange={handleChange}
               className="w-full px-4 py-2 rounded-lg border"
@@ -127,9 +147,9 @@ export default function ChatbotLanding() {
             />
             <button
               type="submit"
-              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 mt-4 rounded w-full"
+              className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 mt-4 rounded w-full"
             >
-              Enviar formulario 🚀
+              🚀 ¡Quiero mi chatbot ahora!
             </button>
           </form>
         )}
