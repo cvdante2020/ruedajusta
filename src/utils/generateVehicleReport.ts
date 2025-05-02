@@ -93,7 +93,7 @@ doc.text(`Tipo: ${data.tipo}`, 110, y + 24);
 doc.text(`Año: ${data.anio}`, 110, y + 30);
 
   doc.text(`Placa: ${data.placa}`, 12, y + 24);
-  salto(35);
+  salto(40);
 
   // HISTORIAL Y EVALUACIÓN VISUAL
   doc.setDrawColor(220);
