@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   title: "RuedaJusta",
   description: "Evaluación y ofertas personalizadas de vehículos en Ecuador",
   icons: {
-    icon: "/favicon.ico",
+    icon: "/icon.ico",
   },
 };
 
