@@ -49,6 +49,7 @@ export default function AmazonMiniAds({
                 alt={p.nombre}
                 fill
                 className="object-cover"
+                unoptimized
               />
             </div>
             <div className="p-1 text-center">
