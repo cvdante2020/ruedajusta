@@ -2,6 +2,11 @@
 
 import Header from "@/components/Header";
 import PublicidadFlotante from "@/components/PublicidadFlotante";
+import PublicidadSphaera from "@/components/PublicidadSphaera";
+import MiniAdsFromDB from "@/components/MiniAdsFromDB";
+import AmazonMiniAds from "@/components/AmazonMiniAds"; // ✅ sin llaves
+// ❌ NO: import { AmazonMiniAds } from "@/components/AmazonMiniAds";
+
 
 import {
   ChartBarIcon,
@@ -10,6 +15,31 @@ import {
   DevicePhoneMobileIcon,
 } from '@heroicons/react/24/outline';
 
+const productosDerecha = [
+    {
+      nombre: "Luuzkla Batería de 19800 mAh, compatible con iPhone 12/12 Pro",
+      url: "https://amzn.to/4oxbR7l",
+      img: "/bat.jpg",
+    },
+    {
+      nombre: "Suero para el Acné",
+      url: "https://amzn.to/4oxgApB",
+      img: "/su1.jpg",
+    },
+  ];
+
+  const productosIzquierda = [
+    {
+      nombre: "Luz LED para escritorio gamer",
+      url: "https://amzn.to/48EdsUl",
+      img: "/amazon3.jpg",
+    },
+    {
+      nombre: "Teclado mecánico retroiluminado",
+      url: "https://amzn.to/4bYYabc",
+      img: "/amazon4.jpg",
+    },
+  ];
 
 export default function Home() {
   return (
@@ -37,7 +67,10 @@ export default function Home() {
           </a>
         </div>
       </main>
+        <MiniAdsFromDB posicion="right" />
+      <MiniAdsFromDB posicion="left" />
       <PublicidadFlotante />
+      <PublicidadSphaera />
             {/* ¿POR QUÉ? */}
       <section id="por-que" className="bg-gray-50 py-20 px-6 text-center">
         <div className="max-w-4xl mx-auto">

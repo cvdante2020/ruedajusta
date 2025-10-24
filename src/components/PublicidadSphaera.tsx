@@ -1,4 +1,4 @@
-// components/PublicidadChatbot.tsx
+// components/PublicidadSphaera.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -6,16 +6,15 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { X } from "lucide-react";
 
-const GPT_ROBOTIC_URL = "https://www.gptrobotic.com/";
-const IMG_SRC = "/chatbot.png";
- // <-- ruta de tu imagen dentro de /public
+const SPHAERA_URL = "https://sphaera.club/";
+const IMG_SRC = "/redes.png"; // coloca tu imagen dentro de /public
 
-export default function PublicidadChatbot() {
+export default function PublicidadSphaera() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    // Aparece a los 2s, se oculta a los 6 minutos (ajustable)
-    const showTimer = setTimeout(() => setVisible(true), 2000);
+    // Aparece a los 3 segundos y se oculta a los 6 minutos
+    const showTimer = setTimeout(() => setVisible(true), 3000);
     const hideTimer = setTimeout(() => setVisible(false), 6 * 60 * 1000);
     return () => {
       clearTimeout(showTimer);
@@ -23,8 +22,8 @@ export default function PublicidadChatbot() {
     };
   }, []);
 
-  const goToGptRobotic = () => {
-    window.open(GPT_ROBOTIC_URL, "_blank", "noopener,noreferrer");
+  const goToSphaera = () => {
+    window.open(SPHAERA_URL, "_blank", "noopener,noreferrer");
   };
 
   return (
@@ -35,9 +34,9 @@ export default function PublicidadChatbot() {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 50, scale: 0.95 }}
           transition={{ type: "spring", stiffness: 260, damping: 20 }}
-          className="fixed bottom-6 right-6 z-50 w-80 cursor-pointer select-none"
-          onClick={goToGptRobotic}
-          aria-label="Publicidad: Ir a GPT Robotic"
+          className="fixed bottom-6 left-6 z-50 w-80 cursor-pointer select-none"
+          onClick={goToSphaera}
+          aria-label="Publicidad: Ir a Sphaera Club"
           role="button"
         >
           <div className="overflow-hidden rounded-2xl shadow-2xl bg-white">
@@ -45,7 +44,7 @@ export default function PublicidadChatbot() {
             <div className="relative h-44 w-full">
               <Image
                 src={IMG_SRC}
-                alt="Asesora atendiendo por WhatsApp / Chatbot"
+                alt="Impulsa tus redes sociales con Sphaera"
                 fill
                 priority
                 sizes="(max-width: 768px) 80vw, 20vw"
@@ -54,24 +53,24 @@ export default function PublicidadChatbot() {
             </div>
 
             {/* Cuerpo / Copy */}
-            <div className="p-4 bg-gradient-to-br from-purple-600 to-indigo-700 text-white">
+            <div className="p-4 bg-gradient-to-br from-blue-600 to-cyan-500 text-white">
               <h4 className="text-lg font-bold leading-tight">
-                ¡Crea tu Chatbot Hoy!
+                ¡Haz Crecer tus Redes!
               </h4>
               <p className="mt-1 text-sm opacity-95">
-                Un asistente inteligente en WhatsApp atiende a tus clientes 24/7.
-                Planes desde <strong>49,99&nbsp;USD/mes</strong>, sin costo de implementación 🚀
+                Aumenta tus seguidores, likes y comentarios en TikTok, Instagram, X, Facebook y LinkedIn
+                Con Sphaera crece tu visibilidad y llega a más personas sin complicaciones.
               </p>
 
               <button
                 type="button"
                 onClick={(e) => {
-                  e.stopPropagation(); // no dispare el click del contenedor
-                  goToGptRobotic();
+                  e.stopPropagation();
+                  goToSphaera();
                 }}
-                className="mt-3 w-full rounded-xl bg-white px-4 py-2 font-semibold text-purple-700 shadow hover:bg-gray-100 transition"
+                className="mt-3 w-full rounded-xl bg-white px-4 py-2 font-semibold text-blue-600 shadow hover:bg-gray-100 transition"
               >
-                ¡Ir a GPT Robotic!
+                🌟 Ir a Sphaera.club
               </button>
             </div>
           </div>
@@ -80,7 +79,7 @@ export default function PublicidadChatbot() {
           <button
             type="button"
             onClick={(e) => {
-              e.stopPropagation(); // evita abrir el link
+              e.stopPropagation();
               setVisible(false);
             }}
             className="absolute -top-2 -right-2 rounded-full bg-black/70 p-1.5 text-white hover:bg-black/85"
