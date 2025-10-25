@@ -1,5 +1,5 @@
 'use client';
-
+import Script from "next/script"; 
 import Header from "@/components/Header";
 import PublicidadFlotante from "@/components/PublicidadFlotante";
 import PublicidadSphaera from "@/components/PublicidadSphaera";
@@ -45,7 +45,59 @@ export default function Home() {
   return (
     
     <>
+    {/* === JSON-LD: Organization === */}
+      <Script id="schema-org-organization" type="application/ld+json" strategy="afterInteractive"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            "name": "RuedaJusta",
+            "url": "https://ruedajusta.com",
+            "logo": "https://ruedajusta.com/icon.ico",
+            "description": "Evaluación y ofertas personalizadas de vehículos en Ecuador",
+            "areaServed": "EC"
+          })
+        }}
+      />
+
+       <Script id="schema-org-website" type="application/ld+json" strategy="afterInteractive"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            "name": "RuedaJusta",
+            "url": "https://ruedajusta.com",
+            "potentialAction": {
+              "@type": "SearchAction",
+              "target": "https://ruedajusta.com/buscar?q={search_term_string}",
+              "query-input": "required name=search_term_string"
+            }
+          })
+        }}
+      />
+
+       <Script id="schema-org-service" type="application/ld+json" strategy="afterInteractive"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Service",
+            "name": "Evaluación de vehículos en Ecuador",
+            "serviceType": "Vehicle appraisal",
+            "provider": { "@type": "Organization", "name": "RuedaJusta" },
+            "areaServed": "EC",
+            "url": "https://ruedajusta.com/evaluacion",
+            "description": "Calcula el valor real de tu auto en Ecuador con datos del mercado.",
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "USD",
+              "availability": "https://schema.org/InStock"
+            }
+          })
+        }}
+      />
       <Header />
+      
       {/* HERO */}
       <main className="min-h-screen bg-gradient-to-br from-white to-blue-50 px-6 pt-32 pb-20 text-center">
         <div className="animate-fade-up transition-all duration-500">
