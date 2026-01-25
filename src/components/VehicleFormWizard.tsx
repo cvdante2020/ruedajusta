@@ -400,7 +400,7 @@ useEffect(() => {
   <br />
   Al completar tu evaluación estarás participando automáticamente. 
   <br />
-  Sorteo válido hasta <strong>1 de Diciembre 2025</strong>.
+  Sorteo válido hasta <strong>1 de Diciembre 2026</strong>.
 </div>
 
           </h2>

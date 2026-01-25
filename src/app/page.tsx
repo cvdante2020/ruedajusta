@@ -119,10 +119,7 @@ export default function Home() {
           </a>
         </div>
       </main>
-        <MiniAdsFromDB posicion="right" />
-      <MiniAdsFromDB posicion="left" />
-      <PublicidadFlotante />
-      <PublicidadSphaera />
+       
             {/* ¿POR QUÉ? */}
       <section id="por-que" className="bg-gray-50 py-20 px-6 text-center">
         <div className="max-w-4xl mx-auto">

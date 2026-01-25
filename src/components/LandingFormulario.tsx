@@ -155,7 +155,7 @@ export default function LandingFormulario() {
       <div className="mt-4 text-center bg-[#f8fafc] text-gray-600 text-xs border border-gray-200 rounded-xl p-3 shadow-sm max-w-md mx-auto">
   🎁 <strong className="text-[#006654]">¡Participa por una Giftcard de $50!</strong>  
  
-  Sorteo válido hasta <strong>1 de Diciembre 2025</strong>.
+  Sorteo válido hasta <strong>1 de Diciembre 2026</strong>.
 </div>
 
         <h2 className="text-2xl font-bold text-[#006654]">¿Qué vehículo estás buscando?</h2>
