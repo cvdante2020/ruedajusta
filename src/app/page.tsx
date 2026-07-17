@@ -407,8 +407,8 @@ export default function Home() {
       <div>
         <span className="eyebrow">Contáctanos</span>
         <div className="contactos">
-          <a className="contacto" href="mailto:christian.v@ruedajusta.com"><span className="cico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F6B31B" strokeWidth="2" strokeLinecap="round"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3.5 7l8.5 6 8.5-6"/></svg></span>informacion@ruedajusta.com</a>
-          <a className="contacto" href="tel:+593998260550"><span className="cico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F6B31B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 4h3.5l1.5 4-2 1.5a12 12 0 0 0 6.5 6.5L16 14l4 1.5V19a1.5 1.5 0 0 1-1.6 1.5A16.5 16.5 0 0 1 3.5 5.6 1.5 1.5 0 0 1 5 4z"/></svg></span></a>
+          <a className="contacto" href="mailto:informacion@ruedajusta.com"><span className="cico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F6B31B" strokeWidth="2" strokeLinecap="round"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3.5 7l8.5 6 8.5-6"/></svg></span>informacion@ruedajusta.com</a>
+          <a className="contacto" href=""><span className="cico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F6B31B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 4h3.5l1.5 4-2 1.5a12 12 0 0 0 6.5 6.5L16 14l4 1.5V19a1.5 1.5 0 0 1-1.6 1.5A16.5 16.5 0 0 1 3.5 5.6 1.5 1.5 0 0 1 5 4z"/></svg></span></a>
           <a className="contacto" href="https://app.ruedajusta.com"><span className="cico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F6B31B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17L17 7"/><path d="M9 7h8v8"/></svg></span>app.ruedajusta.com</a>
         </div>
       </div>
