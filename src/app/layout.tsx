@@ -1,37 +1,37 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Poppins } from "next/font/google";
 import "./globals.css";
-import { Poppins } from 'next/font/google';
 
-const poppins = Poppins({ subsets: ['latin'], weight: ['400', '600', '700'] });
-
-
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const poppins = Poppins({
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "RuedaJusta",
-  description: "Evaluación y ofertas personalizadas de vehículos en Ecuador",
-  icons: {
-    icon: "/icon.ico",
+  metadataBase: new URL("https://ruedajusta.com"),
+  title: "RuedaJusta | Compra y vende vehículos directo, sin comisiones · Ecuador",
+  description:
+    "Publica y vende tu vehículo, o busca uno y recibe ofertas instantáneas. Chatea directo y cierra el trato. Sin comisiones ni intermediarios.",
+  openGraph: {
+    title: "RuedaJusta — El trato directo",
+    description:
+      "Publica y vende tu vehículo, o busca uno y recibe ofertas instantáneas. Sin comisiones. Ecuador.",
+    url: "https://ruedajusta.com",
+    siteName: "RuedaJusta",
+    locale: "es_EC",
+    type: "website",
   },
 };
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="es">
-      <body className="...">
-        {children}
-        
-      </body>
+      <body className={poppins.className}>{children}</body>
     </html>
   );
 }
-
