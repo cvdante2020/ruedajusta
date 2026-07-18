@@ -134,8 +134,13 @@ const jsonLd = {
   description:
     "La red inteligente para comprar y vender vehículos en Ecuador. Sin comisiones ni intermediarios.",
   areaServed: "EC",
-  email: "informacio@ruedajusta.com",
-  
+  email: "informacion@ruedajusta.com",
+  address: {
+    "@type": "PostalAddress",
+    addressLocality: "Palo Alto",
+    addressRegion: "CA",
+    addressCountry: "US",
+  },
 };
 
 export default function Home() {
@@ -398,7 +403,7 @@ export default function Home() {
           </svg>
           <span className="marca">RUEDA<span>JUSTA</span></span>
         </a>
-        <p className="desc">La red inteligente para comprar y vender vehículos en Ecuador. Conectamos personas, no cobramos comisiones.</p>
+        <p className="desc">La red inteligente para comprar y vender vehículos. Conectamos personas, no cobramos comisiones.</p>
         <a className="wsp" href="https://wa.me/593998260550?text=Hola%20RuedaJusta%2C%20quiero%20m%C3%A1s%20informaci%C3%B3n" target="_blank" rel="noopener">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2zm0 18.2c-1.6 0-3.1-.4-4.4-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.6-6.1c-.3-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1-.2.3-.7.8-.8 1-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4 0-.5.2-.7l.4-.5c.1-.2.1-.3 0-.5l-.8-1.9c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.9.9-1.1 2.2-.2 3.7 1.2 2 2.9 3.5 5 4.4 1.7.7 2.4.6 3.2.5.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2-.1-.1-.2-.1-.5-.3z"/></svg>
           Escríbenos por WhatsApp
@@ -408,13 +413,13 @@ export default function Home() {
         <span className="eyebrow">Contáctanos</span>
         <div className="contactos">
           <a className="contacto" href="mailto:informacion@ruedajusta.com"><span className="cico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F6B31B" strokeWidth="2" strokeLinecap="round"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3.5 7l8.5 6 8.5-6"/></svg></span>informacion@ruedajusta.com</a>
-          <a className="contacto" href=""><span className="cico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F6B31B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 4h3.5l1.5 4-2 1.5a12 12 0 0 0 6.5 6.5L16 14l4 1.5V19a1.5 1.5 0 0 1-1.6 1.5A16.5 16.5 0 0 1 3.5 5.6 1.5 1.5 0 0 1 5 4z"/></svg></span></a>
+          <div className="contacto" style={{cursor:'default'}}><span className="cico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F6B31B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 21s-7-5.6-7-11a7 7 0 0 1 14 0c0 5.4-7 11-7 11z"/><circle cx="12" cy="10" r="2.6"/></svg></span>Palo Alto, California</div>
           <a className="contacto" href="https://app.ruedajusta.com"><span className="cico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F6B31B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17L17 7"/><path d="M9 7h8v8"/></svg></span>app.ruedajusta.com</a>
         </div>
       </div>
     </div>
     <div className="legal">
-      <span>© 2026 RuedaJusta · Ecuador</span>
+      <span>© 2026 RuedaJusta · Palo Alto, California</span>
       <span>La red inteligente para comprar y vender vehículos</span>
     </div>
   </div>
